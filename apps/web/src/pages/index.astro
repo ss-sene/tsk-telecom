@@ -1,0 +1,144 @@
+---
+// apps/web/src/pages/index.astro
+import '../styles/global.css';
+import { TDK_PLANS_ARRAY, getPriceByPlanName } from '@tdk/config';
+
+const BRAND = {
+	name: "TDK Telecom",
+	colors: { primary: "#1A3C9F" }
+};
+
+interface Plan {
+	id: string;
+	name: string;
+	price: number;
+	speed: string;
+	features: string[];
+	isPopular: boolean;
+}
+
+// Résolution statique au moment du build
+const CHECKOUT_URL = import.meta.env.PUBLIC_CHECKOUT_URL || 'http://localhost:3000/checkout';
+---
+
+<html lang="fr" class="scroll-smooth">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{BRAND.name} - L'Internet Haut Débit</title>
+		<meta name="description" content="Rejoignez le réseau TDK Telecom. Une connexion stable, rapide et abordable au Sénégal." />
+	</head>
+	<body class="min-h-screen bg-white font-sans text-gray-900 selection:bg-[#1A3C9F] selection:text-white">
+
+		<nav class="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
+			<div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+				<a href="/" class="flex items-center gap-3">
+					<img
+						src="/logo.png"
+						alt={`Logo ${BRAND.name}`}
+						width="150"
+						height="40"
+						class="h-10 w-auto object-contain"
+					/>
+					<span class="text-2xl font-black tracking-tight text-[#1A3C9F]">{BRAND.name}</span>
+				</a>
+
+				<div class="hidden md:flex gap-8 text-sm font-semibold text-gray-600">
+					<a href="#avantages" class="hover:text-[#1A3C9F] transition-colors">Avantages</a>
+					<a href="#offres" class="hover:text-[#1A3C9F] transition-colors">Offres</a>
+				</div>
+				<a href="#offres" class="rounded-full bg-[#1A3C9F] px-5 py-2 text-sm font-bold text-white transition-transform hover:scale-105">
+					S'abonner
+				</a>
+			</div>
+		</nav>
+
+		<main>
+			<section class="relative overflow-hidden bg-gray-50 pt-24 pb-32 sm:pt-32 sm:pb-40 px-6 lg:px-8">
+				<div class="mx-auto max-w-4xl text-center">
+					<h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-6xl">
+						Le réseau WiFi qui accélère <span class="text-[#1A3C9F]">le Sénégal.</span>
+					</h1>
+					<p class="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-600">
+						Rejoignez le réseau {BRAND.name}. Une connexion stable, rapide et abordable pour votre maison ou votre entreprise. Payez facilement via Wave ou Orange Money.
+					</p>
+					<div class="mt-10 flex items-center justify-center gap-x-6">
+						<a
+							href="#offres"
+							class="rounded-xl bg-[#1A3C9F] px-8 py-4 text-base font-bold text-white shadow-lg hover:bg-[#142E7B] transition-all"
+						>
+							Voir nos offres
+						</a>
+					</div>
+				</div>
+			</section>
+
+			<section id="offres" class="py-24 sm:py-32 bg-white px-6 lg:px-8">
+				<div class="mx-auto max-w-7xl text-center">
+					<h2 class="text-base font-semibold leading-7 text-[#1A3C9F]">Tarification simple</h2>
+					<p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Choisissez votre vitesse</p>
+				</div>
+
+				<div class="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-2">
+					{TDK_PLANS_ARRAY.map((plan) => (
+						<article class={`relative flex flex-col justify-between rounded-3xl p-8 shadow-xl ring-1 sm:p-10 ${
+							plan.isPopular ? 'bg-gray-900 ring-gray-900' : 'bg-white ring-gray-200'
+						}`}>
+							{plan.isPopular && (
+								<div class="absolute -top-4 left-0 right-0 mx-auto w-32 rounded-full bg-[#1A3C9F] px-3 py-1 text-center text-xs font-bold text-white">
+									Le plus choisi
+								</div>
+							)}
+
+							<div>
+								<h3 class={`text-xl font-bold ${plan.isPopular ? 'text-white' : 'text-gray-900'}`}>
+									{plan.name}
+								</h3>
+								<div class="mt-4 flex items-baseline gap-x-2">
+										<span class={`text-5xl font-extrabold tracking-tight ${plan.isPopular ? 'text-white' : 'text-gray-900'}`}>
+											{plan.price.toLocaleString('fr-FR')}
+										</span>
+									<span class={`text-base font-semibold ${plan.isPopular ? 'text-gray-400' : 'text-gray-500'}`}>
+											FCFA / mois
+										</span>
+								</div>
+								<p class={`mt-2 text-sm font-bold ${plan.isPopular ? 'text-[#1A3C9F]' : 'text-[#1A3C9F]'}`}>
+									{plan.speed}
+								</p>
+
+								<ul class={`mt-8 space-y-3 text-sm leading-6 ${plan.isPopular ? 'text-gray-300' : 'text-gray-600'}`}>
+									{plan.features.map((feature) => (
+										<li class="flex gap-x-3">
+											<svg class={`h-6 w-5 flex-none ${plan.isPopular ? 'text-[#1A3C9F]' : 'text-[#1A3C9F]'}`} viewBox="0 0 20 20" fill="currentColor">
+												<path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+											</svg>
+											{feature}
+										</li>
+									))}
+								</ul>
+							</div>
+
+							<a
+								href={`${CHECKOUT_URL}?plan=${encodeURIComponent(plan.name)}&price=${plan.price}`}
+								class={`mt-8 block rounded-xl px-3 py-4 text-center text-sm font-bold shadow-sm transition-all ${
+									plan.isPopular
+										? 'bg-[#1A3C9F] text-white hover:bg-[#142E7B]'
+										: 'bg-[#1A3C9F] text-white hover:bg-[#142E7B]'
+								}`}
+							>
+								Souscrire via Mobile Money
+							</a>
+						</article>
+					))}
+				</div>
+			</section>
+		</main>
+
+		<footer class="bg-gray-50 py-12 text-center border-t border-gray-100">
+			<p class="text-sm font-semibold text-gray-500">
+				© {new Date().getFullYear()} {BRAND.name}. Tous droits réservés.
+			</p>
+		</footer>
+
+	</body>
+</html>

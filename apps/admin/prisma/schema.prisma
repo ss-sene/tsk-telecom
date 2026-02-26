@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PaymentProvider {
+  WAVE
+  ORANGE_MONEY
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+// --- NOUVEAU : ENTITÉ CLIENT ---
+
+model Client {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  // Identité
+  phone     String  @unique @db.VarChar(20) // Identifiant métier principal (Mobile Money)
+  firstName String?
+  lastName  String?
+  email     String? @unique
+  village   String?
+
+  // Relations
+  payments Payment[] // Un client peut avoir plusieurs paiements
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phone])
+}
+
+// --- ENTITÉ PAIEMENT (Mise à jour) ---
+
+model Payment {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  amount   Int
+  currency String @default("XOF") @db.VarChar(3)
+
+  provider PaymentProvider
+  status   PaymentStatus   @default(PENDING)
+
+  // --- RELATION CLIENT ---
+  clientId String @db.Uuid
+  // RESTRICT : Interdit la suppression d'un client s'il a des paiements (Règle d'audit financier)
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  internalRef String  @unique @default(cuid())
+  providerRef String? @unique
+
+  metadata     Json?
+  errorMessage String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+  @@index([internalRef])
+  @@index([clientId]) // Nouvel index pour filtrer rapidement les paiements d'un client
+}

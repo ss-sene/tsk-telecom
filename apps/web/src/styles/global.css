@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Vous pouvez ajouter des variables CSS personnalisées ici si besoin */
+@theme {
+    --color-primary: #1A3C9F;
+    --color-primary-hover: #142E7B;
+}
