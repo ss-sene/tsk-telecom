@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/core/db/prisma';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus } from '@/generated/prisma/client';
 import { revalidatePath } from 'next/cache';
 
 /**

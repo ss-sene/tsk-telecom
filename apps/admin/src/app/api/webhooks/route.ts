@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/core/db/prisma';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus } from '@/generated/prisma/client';
 import { z } from 'zod';
 import crypto from 'crypto';
 import { WebhookPayloadSchema } from '@/core/validators/webhook.schema';

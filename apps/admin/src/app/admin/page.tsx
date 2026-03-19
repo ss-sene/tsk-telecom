@@ -1,6 +1,6 @@
 // apps/admin/src/app/admin/page.tsx
 import { prisma } from '@/core/db/prisma';
-import { PaymentStatus, PaymentProvider, Prisma } from '@prisma/client';
+import { PaymentStatus, PaymentProvider, Prisma } from '@/generated/prisma/client';
 import Link from 'next/link';
 import { CustomListbox } from '@/components/ui/CustomListbox';
 import { StatusUpdater } from './components/StatusUpdater';

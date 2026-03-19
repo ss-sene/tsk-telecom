@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus } from '@/generated/prisma/client';
 import { updatePaymentStatus } from '@/core/actions/admin.action';
 
 const STATUS_OPTIONS = [
