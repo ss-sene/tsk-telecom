@@ -105,7 +105,7 @@ export default async function AdminDashboard(props: { searchParams: Promise<{ [k
 
     const VILLAGE_OPTIONS = allVillages.map(v => ({
         value: v.id,
-        label: v.titre
+        label: v.titre ?? 'Sans nom',
     }));
 
     const conversionRate = stats.totalCount > 0
@@ -218,7 +218,7 @@ export default async function AdminDashboard(props: { searchParams: Promise<{ [k
                                             <div className="font-bold text-gray-900">{payment.client.lastName}</div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className="font-semibold text-gray-700">{payment.client.village.titre}</span>
+                                            <span className="font-semibold text-gray-700">{payment.client.village.titre ?? '—'}</span>
                                         </td>
                                         <td className="px-6 py-4 font-medium text-gray-600">
                                             {PROVIDER_LABELS[payment.provider]}
