@@ -30,22 +30,24 @@ async function getDashboardData(params: { [key: string]: string | undefined }) {
     if (params.status) where.status = params.status as PaymentStatus;
     if (params.provider) where.provider = params.provider as PaymentProvider;
 
+    // ✅ Construire le filtre client en une seule passe, typé explicitement
+    const clientFilter: Prisma.ClientWhereInput = {};
+
     if (params.villageId) {
-        where.client = {
-            villageId: params.villageId
-        };
+        clientFilter.villageId = params.villageId;
     }
 
     if (params.search && params.search.trim() !== '') {
         const searchTerm = params.search.trim();
-        where.client = {
-            ...(where.client ? where.client : {}),
-            OR: [
-                { firstName: { contains: searchTerm, mode: 'insensitive' } },
-                { lastName: { contains: searchTerm, mode: 'insensitive' } },
-                { phone: { contains: searchTerm } }
-            ]
-        };
+        clientFilter.OR = [
+            { firstName: { contains: searchTerm, mode: 'insensitive' } },
+            { lastName: { contains: searchTerm, mode: 'insensitive' } },
+            { phone: { contains: searchTerm } },
+        ];
+    }
+
+    if (Object.keys(clientFilter).length > 0) {
+        where.client = clientFilter;
     }
 
     const allowedSortFields = ['createdAt', 'amount', 'status', 'provider'];
@@ -62,7 +64,7 @@ async function getDashboardData(params: { [key: string]: string | undefined }) {
             orderBy,
             take: 50,
             include: {
-                client: { 
+                client: {
                     include: { village: true }
                 }
             }
@@ -131,7 +133,6 @@ export default async function AdminDashboard(props: { searchParams: Promise<{ [k
         );
     };
 
-    // --- CORRECTION CRITIQUE ---
     // Création d'une clé unique basée sur l'état de l'URL.
     // Si l'URL change (ex: quand on clique sur "Effacer" et qu'on revient sur "/admin"),
     // la clé change, forçant React à détruire et recréer complètement le formulaire et ses enfants.
@@ -140,7 +141,7 @@ export default async function AdminDashboard(props: { searchParams: Promise<{ [k
     return (
         <div className="min-h-screen bg-gray-50 p-4 sm:p-8">
             <div className="mx-auto max-w-7xl space-y-8">
-                
+
                 {/* STATS CARDS */}
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
                     <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-gray-200 text-center">
@@ -158,9 +159,8 @@ export default async function AdminDashboard(props: { searchParams: Promise<{ [k
                 </div>
 
                 {/* FILTERS FORM */}
-                {/* Injection de la "key" dynamique */}
                 <form key={formKey} action="/admin" method="GET" className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-gray-200 flex flex-col lg:flex-row items-end gap-4">
-                    
+
                     <div className="w-full lg:flex-2">
                         <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-gray-500">Recherche</label>
                         <input
