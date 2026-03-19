@@ -13,10 +13,16 @@ const BRAND = {
 // --- COMPOSANT PRINCIPAL (Server Component) ---
 export default async function CheckoutGateway() {
     // Fetching Server-Side des villages (O(1) réseau)
-    const villages = await prisma.village.findMany({
+    const rawVillages = await prisma.village.findMany({
         orderBy: { titre: 'asc' },
         select: { id: true, titre: true }
     });
+
+    // ✅ Normalisation du champ nullable avant passage au composant client
+    const villages = rawVillages.map(v => ({
+        id: v.id,
+        titre: v.titre ?? 'Sans nom',
+    }));
 
     return (
         <div className={`min-h-screen flex flex-col bg-gradient-to-br ${BRAND.colors.bgGradient} font-sans text-gray-900`}>
@@ -34,11 +40,14 @@ export default async function CheckoutGateway() {
                     </div>
                     <span className="text-xl font-black tracking-tight text-white">TDK Telecom</span>
                 </Link>
-
                 <div className="flex items-center gap-3">
                     <button type="button" className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg text-sm font-semibold text-gray-800 shadow-sm">
                         <span className="flex overflow-hidden rounded-sm w-4 h-3 border border-gray-200 relative">
-                            <span className="w-1/3 bg-[#00853F]"></span><span className="w-1/3 bg-[#FDEF42] flex items-center justify-center"><span className="text-[6px] text-[#00853F]">★</span></span><span className="w-1/3 bg-[#E31B23]"></span>
+                            <span className="w-1/3 bg-[#00853F]"></span>
+                            <span className="w-1/3 bg-[#FDEF42] flex items-center justify-center">
+                                <span className="text-[6px] text-[#00853F]">★</span>
+                            </span>
+                            <span className="w-1/3 bg-[#E31B23]"></span>
                         </span>
                         Sénégal
                     </button>
