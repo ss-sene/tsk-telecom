@@ -49,7 +49,7 @@ model Client {
 
 model Village {
   id String @id @default(dbgenerated("gen_random_uuid()"))  @db.Uuid
-  titre String?  @unique()
+  titre String  @unique()
 
   // Relations
   clients Client[]

@@ -5,6 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { CheckoutFormClient } from './CheckoutFormClient';
 
+// ✅ Empêche le pré-rendu statique au build
+export const dynamic = 'force-dynamic';
+
 const BRAND = {
     name: "TDK Telecom",
     colors: { primary: "#1A3C9F", primaryHover: "#142E7B", bgGradient: "from-gray-50 to-blue-50" }
