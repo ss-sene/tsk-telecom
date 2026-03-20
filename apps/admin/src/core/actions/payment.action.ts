@@ -4,7 +4,7 @@
 import { prisma } from '@/core/db/prisma';
 import { z } from 'zod';
 import { InitiatePaymentSchema } from "@/core/validators/payment.schema";
-import { SoftPayService, SoftPaySupportedProvider } from '@/core/services/softpay.service';
+import { SoftPayProvider, processPayment, verifyWebhookHash } from '@/core/services/softpay.service';
 
 // --- CATALOGUE (Source de vérité) ---
 const PRICING_CATALOG: Record<string, number> = {
@@ -75,20 +75,19 @@ export async function initiatePayment(payload: unknown) {
 
         // --- 5. EXÉCUTION DU PAIEMENT (STRATEGY PATTERN SOFTPAY) ---
         // Mapping sécurisé du provider sélectionné vers le type strict attendu par le service
-        const softPayProvider = dto.provider as SoftPaySupportedProvider;
+        const softPayProvider = dto.provider as SoftPayProvider;
 
-        const result = await SoftPayService.processPayment(
-            softPayProvider,
-            payment.internalRef, // On passe l'internalRef au lieu de l'UUID pour matcher avec le Webhook
-            actualPrice,
-            dto.plan,
-            { 
-                fullName: `${dto.firstName} ${dto.lastName}`, 
-                email: cleanEmail || 'client@tdk-telecom.sn', // SoftPay exige un email valide
-                phone: dto.phone,
-                password: dto.softpayPassword 
-            }
-        );
+        const result = await processPayment({
+            provider:      softPayProvider,
+            amount:        actualPrice,
+            phone:         dto.phone,
+            customerName:  `${dto.firstName} ${dto.lastName}`,
+            customerEmail: cleanEmail || 'client@tdk-telecom.sn',
+            internalRef:   payment.internalRef,
+            callbackUrl:   `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/webhook`,
+            returnUrl:     `${process.env.NEXT_PUBLIC_APP_URL}/payment/success?ref=${payment.internalRef}`,
+            cancelUrl:     `${process.env.NEXT_PUBLIC_APP_URL}/checkout?cancelled=1`,
+        });
 
         if (result.success) {
             // Si SoftPay fournit une URL (ex: Wave, QR Code Orange), on redirige le navigateur.
