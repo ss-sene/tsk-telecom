@@ -1,18 +1,27 @@
 {
-  "$schema":"https://turbo.build/schema.json",
-  "tasks":{
-    "build":{
-      "dependsOn":[
-        "^build"
-      ],
-      "outputs":[
-        ".next/**",
-        "dist/**"
-      ]
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "DATABASE_URL",
+    "ADMIN_SECRET_TOKEN",
+    "WEBHOOK_SECRET",
+    "OM_CLIENT_ID",
+    "OM_CLIENT_SECRET",
+    "OM_MERCHANT_KEY",
+    "OM_BASE_URL",
+    "PAYDUNYA_MASTER_KEY",
+    "PAYDUNYA_PRIVATE_KEY",
+    "PAYDUNYA_PUBLIC_KEY",
+    "PAYDUNYA_TOKEN",
+    "PAYDUNYA_MODE"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**"]
     },
-    "dev":{
-      "cache":false,
-      "persistent":true
+    "dev": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

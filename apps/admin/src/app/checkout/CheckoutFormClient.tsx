@@ -1,218 +1,407 @@
-// app/checkout/CheckoutFormClient.tsx
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { initiatePayment } from '@/core/actions/payment.action';
-
-const BRAND = {
-    name: "TDK Telecom",
-    colors: { primary: "#1A3C9F", primaryHover: "#142E7B" }
-};
-
-type PaymentProvider = 'WAVE' | 'ORANGE_MONEY';
+import { useState } from 'react';
+import { usePayment } from '@/hooks/usePayment';
+import { InitiatePaymentSchema } from '@/core/validators/payment.schema';
 
 interface Village {
-    id: string;
+    id:    string;
     titre: string;
 }
 
-export function CheckoutFormClient({ villages }: { villages: Village[] }) {
-    const searchParams = useSearchParams();
-    const router = useRouter();
-    const [isPending, startTransition] = useTransition();
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    
-    // Nouvel état pour gérer l'affichage conditionnel
-    const [isOtherVillage, setIsOtherVillage] = useState(false);
+interface Props {
+    villages: Village[];
+}
 
-    const planName = searchParams.get('plan') || 'Pack Standard';
-    const priceTTC = parseInt(searchParams.get('price') || '10000', 10);
+const PLANS = [
+    { id: 'Pack Standard', label: 'Pack Standard', price: 10000, speed: '5 Mbps' },
+    { id: 'Pack Premium',  label: 'Pack Premium',  price: 12000, speed: '10 Mbps' },
+];
 
-    const handlePaymentSubmit = (formData: FormData) => {
-        setErrorMessage(null);
+export function CheckoutFormClient({ villages }: Props) {
+    const { state, initiatePayment, reset } = usePayment();
 
-        const phone = formData.get('phone') as string;
-        const provider = formData.get('provider') as PaymentProvider;
-        const firstName = formData.get('firstname') as string;
-        const lastName = formData.get('lastname') as string;
-        const email = formData.get('email') as string;
-        const villageId = formData.get('villageId') as string;
-        const newVillageName = formData.get('newVillageName') as string | null;
+    const [firstName,      setFirstName]      = useState('');
+    const [lastName,       setLastName]        = useState('');
+    const [email,          setEmail]           = useState('');
+    const [phone,          setPhone]           = useState('');
+    const [villageId,      setVillageId]       = useState('');
+    const [newVillageName, setNewVillageName]  = useState('');
+    const [plan,           setPlan]            = useState(PLANS[0].id);
+    const [provider,       setProvider]        = useState<'WAVE' | 'ORANGE_MONEY'>('WAVE');
+    const [errors,         setErrors]          = useState<Record<string, string>>({});
 
-        const cleanPhone = phone.replace(/\s/g, '');
-        if (cleanPhone.length !== 9 || !/^(77|78|76|75|70)/.test(cleanPhone)) {
-            setErrorMessage("Numéro invalide. Il doit commencer par 77, 78, 76, 75 ou 70.");
-            return;
-        }
+    const selectedPlan = PLANS.find(p => p.id === plan) ?? PLANS[0];
 
-        if (!villageId) {
-            setErrorMessage("Veuillez sélectionner une zone de couverture.");
-            return;
-        }
+    function handleSubmit(e: React.FormEvent) {
+        e.preventDefault();
+        setErrors({});
 
-        if (villageId === 'OTHER' && (!newVillageName || newVillageName.trim().length < 2)) {
-            setErrorMessage("Veuillez préciser le nom de votre zone de couverture.");
-            return;
-        }
+        const payload = {
+            firstName,
+            lastName,
+            email:          email || undefined,
+            phone,
+            villageId:      villageId || '',
+            newVillageName: villageId === 'OTHER' ? newVillageName : undefined,
+            amount:         selectedPlan.price,
+            provider,
+        };
 
-        startTransition(async () => {
-            const response = await initiatePayment({
-                firstName, 
-                lastName, 
-                email, 
-                phone: cleanPhone, 
-                villageId, 
-                newVillageName: newVillageName || undefined, // Transmission du champ conditionnel
-                plan: planName, 
-                provider
-            });
-
-            if (response.success && response.redirectUrl) {
-                router.push(response.redirectUrl);
-            } else {
-                setErrorMessage(response.error || "Une erreur de communication est survenue.");
+        const parsed = InitiatePaymentSchema.safeParse(payload);
+        if (!parsed.success) {
+            const fieldErrors: Record<string, string> = {};
+            for (const [key, msgs] of Object.entries(parsed.error.flatten().fieldErrors)) {
+                fieldErrors[key] = (msgs as string[])[0] ?? '';
             }
-        });
-    };
+            setErrors(fieldErrors);
+            return;
+        }
 
-    const inputClasses = `w-full rounded-xl border border-gray-300 px-4 py-3 text-sm transition-all focus:outline-none focus:border-[${BRAND.colors.primary}] focus:ring-2 focus:ring-[${BRAND.colors.primary}]/20 disabled:bg-gray-100 disabled:cursor-not-allowed`;
+        initiatePayment(parsed.data);
+    }
 
-    return (
-        <div className="bg-gray-50 py-5 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-            <form action={handlePaymentSubmit} className="w-full grid grid-cols-1 lg:grid-cols-12 gap-12 m-0 items-start">
-                {/* ... (début du formulaire identique) ... */}
-                <div className="lg:col-span-7 space-y-8">
+    // --- ÉTAT : Redirection en cours ---
+    if (state.status === 'redirecting') {
+        return (
+            <div className="flex flex-col items-center justify-center py-24 gap-6">
+                <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-[#1A3C9F]" />
+                <div className="text-center">
+                    <p className="text-lg font-bold text-gray-900">
+                        {state.provider === 'WAVE'
+                            ? 'Redirection vers Wave...'
+                            : 'Redirection vers Orange Money...'}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                        Vous allez être redirigé vers votre application de paiement.
+                    </p>
+                    {state.fees && (
+                        <p className="text-xs text-gray-400 mt-2">
+                            Frais : {state.fees.toLocaleString('fr-FR')} FCFA
+                        </p>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // --- ÉTAT : QR Code Orange Money (desktop) ---
+    if (state.status === 'om_qr') {
+        return (
+            <div className="max-w-md mx-auto text-center py-12">
+                <div className="bg-white rounded-3xl ring-1 ring-gray-200 p-8 space-y-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Informations de facturation</h1>
-                        <p className="text-gray-500 mt-2 text-sm">Finalisez votre commande pour le {planName}.</p>
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-orange-100">
+                            <span className="text-2xl">🟠</span>
+                        </div>
+                        <h2 className="text-xl font-extrabold text-gray-900">Paiement Orange Money</h2>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Scannez le QR code avec votre application Orange Money
+                        </p>
                     </div>
 
-                    {errorMessage && (
-                        <div className="rounded-xl bg-red-50 p-4 flex items-center gap-3 text-sm font-medium text-red-800 border border-red-200">
-                            {errorMessage}
+                    {/* QR Code — iframe de la page PayDunya avec le QR */}
+                    <div className="rounded-2xl overflow-hidden border border-gray-200">
+                        <img
+                            src={state.qrUrl}
+                            alt="QR Code Orange Money"
+                            className="w-full"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                    </div>
+
+                    {/* Deeplink fallback si sur mobile malgré tout */}
+                    <a
+                        href={state.omUrl}
+                        className="flex h-11 items-center justify-center rounded-xl bg-orange-500 text-sm font-bold text-white w-full"
+                    >
+                        Ouvrir l&apos;app Orange Money
+                    </a>
+
+                    {state.maxitUrl && (
+                        <a
+                            href={state.maxitUrl}
+                            className="flex h-11 items-center justify-center rounded-xl border border-gray-300 text-sm font-bold text-gray-700 w-full"
+                        >
+                            Ouvrir Maxit
+                        </a>
+                    )}
+
+                    {state.fees && (
+                        <p className="text-xs text-gray-400">
+                            Frais : {state.fees.toLocaleString('fr-FR')} FCFA
+                        </p>
+                    )}
+
+                    <button
+                        onClick={reset}
+                        className="text-sm text-gray-500 underline"
+                    >
+                        Annuler et revenir
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // --- ÉTAT : Erreur ---
+    if (state.status === 'error') {
+        return (
+            <div className="max-w-lg mx-auto text-center py-16">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+                    <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <h2 className="text-xl font-extrabold text-gray-900 mb-2">Une erreur est survenue</h2>
+                <p className="text-gray-500 mb-6">{state.message}</p>
+                <button
+                    onClick={reset}
+                    className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1A3C9F] px-8 text-sm font-bold text-white"
+                >
+                    Réessayer
+                </button>
+            </div>
+        );
+    }
+
+    // --- FORMULAIRE PRINCIPAL ---
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+
+            {/* COLONNE GAUCHE : Formulaire */}
+            <div className="space-y-6">
+                <div>
+                    <h1 className="text-2xl font-extrabold text-gray-900">Souscrire à Internet TDK</h1>
+                    <p className="mt-1 text-gray-500">Remplissez le formulaire pour finaliser votre abonnement.</p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-5">
+
+                    {/* Identité */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500">Prénom</label>
+                            <input
+                                type="text"
+                                value={firstName}
+                                onChange={e => setFirstName(e.target.value)}
+                                placeholder="Mamadou"
+                                className="block h-11 w-full rounded-xl border-0 px-4 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-[#1A3C9F]"
+                            />
+                            {errors.firstName && <p className="mt-1 text-xs text-red-500">{errors.firstName}</p>}
+                        </div>
+                        <div>
+                            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500">Nom</label>
+                            <input
+                                type="text"
+                                value={lastName}
+                                onChange={e => setLastName(e.target.value)}
+                                placeholder="Diallo"
+                                className="block h-11 w-full rounded-xl border-0 px-4 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-[#1A3C9F]"
+                            />
+                            {errors.lastName && <p className="mt-1 text-xs text-red-500">{errors.lastName}</p>}
+                        </div>
+                    </div>
+
+                    {/* Téléphone Mobile Money */}
+                    <div>
+                        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500">
+                            Numéro Mobile Money
+                        </label>
+                        <div className="flex">
+                            <span className="inline-flex h-11 items-center rounded-l-xl border-0 bg-gray-100 px-3 text-sm font-bold text-gray-500 ring-1 ring-inset ring-gray-300">
+                                +221
+                            </span>
+                            <input
+                                type="tel"
+                                value={phone}
+                                onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
+                                placeholder="77 123 45 67"
+                                className="block h-11 w-full rounded-r-xl border-0 px-4 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-[#1A3C9F]"
+                            />
+                        </div>
+                        {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
+                    </div>
+
+                    {/* Email facultatif */}
+                    <div>
+                        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500">
+                            Email <span className="font-normal text-gray-400">(facultatif)</span>
+                        </label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            placeholder="mamadou@example.com"
+                            className="block h-11 w-full rounded-xl border-0 px-4 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-[#1A3C9F]"
+                        />
+                        {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+                    </div>
+
+                    {/* Zone de couverture */}
+                    <div>
+                        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500">Zone de couverture</label>
+                        <select
+                            value={villageId}
+                            onChange={e => setVillageId(e.target.value)}
+                            className="block h-11 w-full rounded-xl border-0 bg-white px-4 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-[#1A3C9F]"
+                        >
+                            <option value="">Sélectionner une zone...</option>
+                            {villages.map(v => (
+                                <option key={v.id} value={v.id}>{v.titre}</option>
+                            ))}
+                            <option value="OTHER">Autre zone...</option>
+                        </select>
+                        {errors.villageId && <p className="mt-1 text-xs text-red-500">{errors.villageId}</p>}
+                    </div>
+
+                    {/* Nouvelle zone conditionnelle */}
+                    {villageId === 'OTHER' && (
+                        <div>
+                            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-500">Nom de votre zone</label>
+                            <input
+                                type="text"
+                                value={newVillageName}
+                                onChange={e => setNewVillageName(e.target.value)}
+                                placeholder="Ex: Quartier Liberté 6"
+                                className="block h-11 w-full rounded-xl border-0 px-4 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-[#1A3C9F]"
+                            />
+                            {errors.newVillageName && <p className="mt-1 text-xs text-red-500">{errors.newVillageName}</p>}
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Prénom <span className="text-red-500">*</span></label>
-                            <input name="firstname" type="text" required placeholder="Modou" disabled={isPending} className={inputClasses} />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Nom <span className="text-red-500">*</span></label>
-                            <input name="lastname" type="text" required placeholder="Diop" disabled={isPending} className={inputClasses} />
+                    {/* Choix opérateur */}
+                    <div>
+                        <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-500">Moyen de paiement</label>
+                        <div className="grid grid-cols-2 gap-3">
+
+                            {/* Wave */}
+                            <button
+                                type="button"
+                                onClick={() => setProvider('WAVE')}
+                                className={`flex items-center justify-center gap-2 h-14 rounded-xl border-2 font-bold text-sm transition-all ${
+                                    provider === 'WAVE'
+                                        ? 'border-[#1A3C9F] bg-blue-50 text-[#1A3C9F]'
+                                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                                }`}
+                            >
+                                <span className="text-lg">🌊</span>
+                                Wave
+                                {provider === 'WAVE' && (
+                                    <span className="ml-1 h-4 w-4 rounded-full bg-[#1A3C9F] flex items-center justify-center">
+                                        <svg className="h-2.5 w-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                )}
+                            </button>
+
+                            {/* Orange Money */}
+                            <button
+                                type="button"
+                                onClick={() => setProvider('ORANGE_MONEY')}
+                                className={`flex items-center justify-center gap-2 h-14 rounded-xl border-2 font-bold text-sm transition-all ${
+                                    provider === 'ORANGE_MONEY'
+                                        ? 'border-orange-500 bg-orange-50 text-orange-600'
+                                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                                }`}
+                            >
+                                <span className="text-lg">🟠</span>
+                                Orange Money
+                                {provider === 'ORANGE_MONEY' && (
+                                    <span className="ml-1 h-4 w-4 rounded-full bg-orange-500 flex items-center justify-center">
+                                        <svg className="h-2.5 w-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </span>
+                                )}
+                            </button>
                         </div>
                     </div>
 
-                    {/* BLOC VILLAGE MODIFIÉ */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Où souhaitez-vous installer la connexion ? <span className="text-red-500">*</span>
-                        </label>
-                        <select 
-                            name="villageId" 
-                            required 
-                            disabled={isPending} 
-                            className={`${inputClasses} bg-gray-50 cursor-pointer font-medium text-gray-700`}
-                            onChange={(e) => setIsOtherVillage(e.target.value === 'OTHER')}
-                        >
-                            <option value="" disabled selected>Sélectionnez votre village</option>
-                            {villages.map(village => (
-                                <option key={village.id} value={village.id}>
-                                    {village.titre}
-                                </option>
-                            ))}
-                            {/* L'option d'échappement */}
-                            <option value="OTHER" className="font-bold text-[#1A3C9F]">+ Ma zone n'est pas dans la liste</option>
-                        </select>
-
-                        {/* Rendu conditionnel du champ texte en O(1) */}
-                        {isOtherVillage && (
-                            <div className="mt-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                                <label className="block text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">
-                                    Précisez le nom de votre zone
-                                </label>
-                                <input 
-                                    name="newVillageName" 
-                                    type="text" 
-                                    required={isOtherVillage} 
-                                    placeholder="Ex: Keur Massar, Mamelles..." 
-                                    disabled={isPending} 
-                                    className={`${inputClasses} border-[#1A3C9F] ring-1 ring-[#1A3C9F]/20`} 
-                                />
-                            </div>
+                    {/* Submit */}
+                    <button
+                        type="submit"
+                        disabled={state.status === 'loading'}
+                        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#1A3C9F] text-sm font-bold text-white shadow-md transition-all hover:bg-[#142E7B] disabled:opacity-60 disabled:cursor-not-allowed"
+                    >
+                        {state.status === 'loading' ? (
+                            <>
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                Traitement en cours...
+                            </>
+                        ) : (
+                            <>
+                                Payer {selectedPlan.price.toLocaleString('fr-FR')} FCFA
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </>
                         )}
-                    </div>
+                    </button>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Adresse mail</label>
-                        <input name="email" type="email" placeholder="modou.diop@email.sn" disabled={isPending} className={inputClasses} />
-                    </div>
+                    <p className="text-center text-xs text-gray-400">
+                        Paiement sécurisé via PayDunya · TDK Telecom
+                    </p>
+                </form>
+            </div>
 
-                    {/* ... (Suite du formulaire : Téléphone & Fournisseurs identique) ... */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Numéro Mobile Money <span className="text-red-500">*</span></label>
-                        <div className="relative flex items-center">
-                            <div className="absolute left-4 flex items-center gap-2 pointer-events-none">
-                                <span className="text-sm font-medium text-gray-700">+221</span>
+            {/* COLONNE DROITE : Offres */}
+            <div className="space-y-4">
+                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500">Choisir une offre</h2>
+
+                {PLANS.map(p => (
+                    <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setPlan(p.id)}
+                        className={`w-full text-left rounded-2xl border-2 p-5 transition-all ${
+                            plan === p.id
+                                ? 'border-[#1A3C9F] bg-blue-50'
+                                : 'border-gray-200 bg-white hover:border-gray-300'
+                        }`}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className={`font-extrabold text-base ${plan === p.id ? 'text-[#1A3C9F]' : 'text-gray-900'}`}>
+                                    {p.label}
+                                </p>
+                                <p className="text-sm text-gray-500 mt-0.5">Débit {p.speed}</p>
                             </div>
-                            <input name="phone" type="tel" maxLength={9} required placeholder="771234567" disabled={isPending} className={`${inputClasses} pl-16 font-mono`} />
+                            <div className="text-right">
+                                <p className="font-extrabold text-lg text-gray-900">
+                                    {p.price.toLocaleString('fr-FR')} <span className="text-sm font-bold">FCFA</span>
+                                </p>
+                                <p className="text-xs text-gray-400">/ mois</p>
+                            </div>
                         </div>
-                    </div>
+                    </button>
+                ))}
 
-                    <div className="pt-4">
-                        <span className="block text-sm font-medium text-gray-700 mb-3">Moyen de paiement <span className="text-red-500">*</span></span>
-                        <div className="grid grid-cols-2 gap-4">
-                            <label className={`relative flex cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:bg-gray-50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
-                                <input type="radio" name="provider" value="WAVE" className="peer sr-only" required disabled={isPending} />
-                                <div className="flex w-full items-center justify-center font-bold text-gray-700 peer-checked:text-blue-500">Wave</div>
-                            </label>
-                            <label className={`relative flex cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all hover:bg-gray-50 focus-within:ring-2 focus-within:ring-orange-500 focus-within:ring-offset-2 ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
-                                <input type="radio" name="provider" value="ORANGE_MONEY" className="peer sr-only" required disabled={isPending} />
-                                <div className="flex w-full items-center justify-center font-bold text-gray-700 peer-checked:text-orange-500">Orange Money</div>
-                            </label>
+                {/* Récapitulatif */}
+                <div className="rounded-2xl bg-gray-900 p-5 text-white">
+                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Récapitulatif</p>
+                    <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                            <span className="text-gray-400">Offre</span>
+                            <span className="font-bold">{selectedPlan.label}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-gray-400">Débit</span>
+                            <span className="font-bold">{selectedPlan.speed}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-gray-400">Opérateur</span>
+                            <span className="font-bold">{provider === 'WAVE' ? 'Wave' : 'Orange Money'}</span>
+                        </div>
+                        <div className="border-t border-gray-700 pt-2 mt-2 flex justify-between">
+                            <span className="text-gray-400">Total</span>
+                            <span className="font-extrabold text-lg">{selectedPlan.price.toLocaleString('fr-FR')} FCFA</span>
                         </div>
                     </div>
                 </div>
-
-                {/* ... (Panneau de résumé de droite identique) ... */}
-                <div className="lg:col-span-5 w-full">
-                    <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.06)] sticky top-8">
-                        <div className="text-center mb-8">
-                            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Montant à payer</h2>
-                            <div className="text-4xl font-extrabold text-gray-900">{priceTTC.toLocaleString('fr-FR')} FCFA</div>
-                        </div>
-
-                        <div className="border-t border-gray-100 pt-6 pb-4 space-y-4 text-sm">
-                            <div className="flex justify-between text-gray-600 font-medium">
-                                <span>Désignation</span>
-                                <span>Prix</span>
-                            </div>
-                            <div className="flex justify-between text-gray-900 font-bold text-base items-center">
-                                <span>{planName}</span>
-                                <span>{priceTTC.toLocaleString('fr-FR')} FCFA</span>
-                            </div>
-                        </div>
-
-                        <div className="pt-6 space-y-3 text-sm border-t border-gray-100 mt-4">
-                            <div className="flex justify-between text-gray-900 font-bold text-xl pt-4">
-                                <span>Total TTC</span>
-                                <span style={{ color: BRAND.colors.primary }}>{priceTTC.toLocaleString('fr-FR')} FCFA</span>
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            disabled={isPending}
-                            style={{ backgroundColor: isPending ? undefined : BRAND.colors.primary }}
-                            className={`mt-8 w-full text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 ${isPending ? 'bg-gray-400 cursor-not-allowed opacity-70' : `hover:bg-[${BRAND.colors.primaryHover}]`}`}
-                        >
-                            {isPending ? 'Initialisation...' : `Payer ${priceTTC.toLocaleString('fr-FR')} FCFA`}
-                        </button>
-                    </div>
-                </div>
-            </form>
+            </div>
         </div>
     );
 }
