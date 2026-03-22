@@ -95,6 +95,8 @@ async function createInvoice(params: ProcessPaymentParams): Promise<
     };
 
     try {
+        console.log('[softpay] MASTER_KEY utilisée:', process.env.PAYDUNYA_MASTER_KEY?.slice(0, 15) + '...');
+        console.log('[softpay] MODE:', process.env.PAYDUNYA_MODE);
         const res  = await fetch(`${BASE_URL}/checkout-invoice/create`, {
             method:  'POST',
             headers: HEADERS,
