@@ -6,8 +6,8 @@ import { usePathname } from 'next/navigation';
 import { logout } from '@/core/actions/auth.action';
 
 const NAV_ITEMS = [
-    { href: '/admin',   label: 'Transactions' },
-    { href: '/admin/clients', label: 'Clients' },
+    { href: '/admin',           label: 'Transactions' },
+    { href: '/admin/catalogue', label: 'Catalogue' },
 ];
 
 export function MobileNav() {

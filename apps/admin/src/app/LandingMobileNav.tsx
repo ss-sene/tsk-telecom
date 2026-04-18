@@ -1,22 +1,27 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
+import { usePathname } from 'next/navigation';
 
-const NAV_ITEMS = [
-    { href: '#offres',            label: 'Offres' },
-    { href: '#comment-ca-marche', label: 'Comment ça marche' },
-    { href: '#faq',               label: 'FAQ' },
-];
+const useIsMounted = () =>
+    useSyncExternalStore(() => () => {}, () => true, () => false);
 
-export function LandingMobileNav() {
-    const [open, setOpen]       = useState(false);
-    // Guard SSR : document.body n'existe pas côté serveur
-    const [mounted, setMounted] = useState(false);
+export function LandingMobileNav({ prefix = '' }: { prefix?: string }) {
+    const pathname = usePathname();
 
-    useEffect(() => { setMounted(true); }, []);
+    const NAV_ITEMS = [
+        ...(prefix ? [{ href: '/',                          label: 'Accueil'   }] : []),
+        { href: `${prefix}#offres`,            label: 'Offres'    },
+        { href: `${prefix}#comment-ca-marche`, label: 'Processus' },
+        { href: `${prefix}#faq`,               label: 'FAQ'       },
+        { href: '/boutique',                   label: 'Boutique'  },
+        { href: '/starlink',                   label: 'Starlink'  },
+    ];
 
-    // Bloque le scroll du body quand le menu est ouvert
+    const [open, setOpen] = useState(false);
+    const mounted         = useIsMounted();
+
     useEffect(() => {
         document.body.style.overflow = open ? 'hidden' : '';
         return () => { document.body.style.overflow = ''; };
@@ -24,24 +29,21 @@ export function LandingMobileNav() {
 
     const close = () => setOpen(false);
 
-    // Le drawer est rendu via portal à document.body — il échappe
-    // au containing block créé par backdrop-filter sur le <header>
     const drawer = (
         <div
             id="landing-mobile-menu"
             role="dialog"
             aria-modal="true"
             aria-label="Navigation"
-            className="fixed inset-0 z-[999] flex flex-col bg-white"
+            className="fixed inset-0 z-[999] flex flex-col bg-white dark:bg-slate-900"
         >
-            {/* En-tête */}
-            <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+            <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 px-5 py-4">
                 <span className="text-base font-black text-brand">TDK Telecom</span>
                 <button
                     type="button"
                     onClick={close}
                     aria-label="Fermer le menu"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
                 >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -49,35 +51,43 @@ export function LandingMobileNav() {
                 </button>
             </div>
 
-            {/* Liens — <a> natif pour le scroll d'ancrage */}
             <nav className="flex-1 overflow-y-auto" aria-label="Menu principal">
-                {NAV_ITEMS.map(item => (
-                    <a
-                        key={item.href}
-                        href={item.href}
-                        onClick={close}
-                        className="flex items-center justify-between border-b border-gray-100 px-6 py-5 text-lg font-semibold text-gray-800 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-                    >
-                        {item.label}
-                        <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
-                ))}
+                {NAV_ITEMS.map(item => {
+                    const isActive = !item.href.includes('#') && (
+                        item.href === '/' ? pathname === '/' : pathname === item.href
+                    );
+                    return (
+                        <a
+                            key={item.href}
+                            href={item.href}
+                            onClick={close}
+                            aria-current={isActive ? 'page' : undefined}
+                            className={`flex items-center justify-between border-b border-gray-100 dark:border-slate-800 px-6 py-5 text-base font-semibold transition-colors ${
+                                isActive
+                                    ? 'text-brand bg-brand-light dark:bg-brand/10'
+                                    : 'text-gray-800 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800/60 active:bg-gray-100 dark:active:bg-slate-800'
+                            }`}
+                        >
+                            {item.label}
+                            <svg className={`h-4 w-4 ${isActive ? 'text-brand' : 'text-gray-400 dark:text-slate-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    );
+                })}
             </nav>
         </div>
     );
 
     return (
         <>
-            {/* Bouton hamburger — dans le header pour le layout */}
             <button
                 type="button"
                 onClick={() => setOpen(o => !o)}
                 aria-expanded={open}
                 aria-controls="landing-mobile-menu"
                 aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
-                className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
             >
                 {open ? (
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -90,7 +100,6 @@ export function LandingMobileNav() {
                 )}
             </button>
 
-            {/* Portal : téléporte le drawer à document.body */}
             {mounted && open && createPortal(drawer, document.body)}
         </>
     );

@@ -1,20 +1,124 @@
 @import "tailwindcss";
 
+@variant dark (&:is(.dark *));
+
+/* ═══════════════════════════════════════════════════════════════════
+   STATIC DESIGN TOKENS
+   Valeurs fixes — génèrent des classes Tailwind utilitaires.
+   Ex : bg-brand, text-success, bg-card-white.
+═══════════════════════════════════════════════════════════════════ */
 @theme {
-  --color-brand:        #1A3C9F;
-  --color-brand-hover:  #142E7B;
-  --color-brand-light:  #EEF2FF;
-  --color-success:      #2ECA50;
-  --color-card:         #F9FAFB;
-  --font-sans:          var(--font-inter), Inter, sans-serif;
+  /* Palette brand */
+  --color-brand:         #1A3C9F;
+  --color-brand-hover:   #142E7B;
+  --color-brand-light:   #EEF2FF;
+  --color-brand-muted:   rgba(26, 60, 159, 0.10);  /* tint léger pour badges icône */
+
+  /* Palette success */
+  --color-success:       #2ECA50;
+  --color-success-muted: rgba(46, 202, 80, 0.12);
+
+  /* Surfaces statiques (light mode explicite) */
+  --color-card:          #F9FAFB;   /* section alternée */
+  --color-card-white:    #ffffff;   /* carte blanche sur fond gris */
+
+  /* Typographie */
+  --font-sans: var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   TOKENS SÉMANTIQUES — SOURCE CSS VARIABLES
+   Ces variables changent entre light et dark via la classe .dark.
+   Elles servent de source pour le thème inline ci-dessous.
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Light mode ── */
 :root {
-  --background: #ffffff;
-  --foreground: #111827;
+  /* Surfaces — profondeur graduée (page → section → card → raised) */
+  --surface-page:    #ffffff;
+  --surface-section: #F9FAFB;
+  --surface-card:    #ffffff;
+  --surface-raised:  #ffffff;   /* carte surélevée, dropdown, popover */
+
+  /* Bordures */
+  --border-faint:    #F3F4F6;   /* séparateur très subtil */
+  --border-default:  #E5E7EB;   /* bordure standard */
+  --border-strong:   #D1D5DB;   /* bordure proéminente */
+
+  /* Texte */
+  --text-base:       #111827;   /* primary — gris-900 */
+  --text-secondary:  #374151;   /* secondary — gris-700 */
+  --text-muted:      #6B7280;   /* muted — gris-500 */
+  --text-faint:      #9CA3AF;   /* très atténué — gris-400 */
+
+  /* Ombres */
+  --shadow-sm:       0 1px 2px 0 rgba(0,0,0,.05);
+  --shadow-card:     0 1px 3px 0 rgba(0,0,0,.07), 0 1px 2px -1px rgba(0,0,0,.05);
+  --shadow-card-md:  0 4px 12px -2px rgba(0,0,0,.10), 0 2px 6px -2px rgba(0,0,0,.06);
+  --shadow-brand:    0 4px 20px -4px rgba(26,60,159,.22);
 }
 
+/* ── Dark mode ── */
+.dark {
+  /* Surfaces — graduées de la plus sombre à la plus claire */
+  --surface-page:    #0F172A;   /* slate-900 — niveau le plus profond */
+  --surface-section: #131E30;   /* entre slate-900 et slate-800 */
+  --surface-card:    #1E293B;   /* slate-800 — card standard */
+  --surface-raised:  #263347;   /* légèrement plus clair — dropdowns, popovers */
+
+  /* Bordures */
+  --border-faint:    #1a2744;   /* très subtil */
+  --border-default:  #334155;   /* slate-700 — standard */
+  --border-strong:   #475569;   /* slate-600 — prominent */
+
+  /* Texte */
+  --text-base:       #F1F5F9;   /* slate-100 */
+  --text-secondary:  #CBD5E1;   /* slate-300 */
+  --text-muted:      #94A3B8;   /* slate-400 */
+  --text-faint:      #64748B;   /* slate-500 */
+
+  /* Ombres (atténuées en dark — le contexte sombre réduit leur impact) */
+  --shadow-sm:       0 1px 2px 0 rgba(0,0,0,.25);
+  --shadow-card:     0 1px 3px 0 rgba(0,0,0,.30), 0 1px 2px -1px rgba(0,0,0,.20);
+  --shadow-card-md:  0 4px 12px -2px rgba(0,0,0,.40), 0 2px 6px -2px rgba(0,0,0,.25);
+  --shadow-brand:    0 4px 20px -4px rgba(26,60,159,.35);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   THÈME INLINE — Classes Tailwind dynamiques (suivent .dark)
+   Génère : bg-surface-page, bg-surface-card, text-text-base, etc.
+   Ces classes s'adaptent automatiquement au dark mode.
+═══════════════════════════════════════════════════════════════════ */
+@theme inline {
+  /* Surfaces */
+  --color-surface-page:    var(--surface-page);
+  --color-surface-section: var(--surface-section);
+  --color-surface-card:    var(--surface-card);
+  --color-surface-raised:  var(--surface-raised);
+
+  /* Bordures */
+  --color-border-faint:    var(--border-faint);
+  --color-border-default:  var(--border-default);
+  --color-border-strong:   var(--border-strong);
+
+  /* Texte sémantique */
+  --color-text-base:       var(--text-base);
+  --color-text-secondary:  var(--text-secondary);
+  --color-text-muted:      var(--text-muted);
+  --color-text-faint:      var(--text-faint);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   BASE LAYER
+═══════════════════════════════════════════════════════════════════ */
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background-color: var(--surface-page);
+  color: var(--text-base);
+}
+
+/* Transition douce lors du basculement de thème */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    transition: background-color 200ms ease, color 200ms ease;
+  }
 }
