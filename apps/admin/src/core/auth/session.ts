@@ -7,8 +7,8 @@ function bufToHex(buf: ArrayBuffer): string {
     return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
 }
 
-function hexToBuf(hex: string): Uint8Array {
-    const out = new Uint8Array(hex.length / 2);
+function hexToBuf(hex: string): Uint8Array<ArrayBuffer> {
+    const out = new Uint8Array(hex.length / 2) as Uint8Array<ArrayBuffer>;
     for (let i = 0; i < hex.length; i += 2) out[i >> 1] = parseInt(hex.slice(i, i + 2), 16);
     return out;
 }
