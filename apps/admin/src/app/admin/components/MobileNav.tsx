@@ -8,6 +8,8 @@ import { logout } from '@/core/actions/auth.action';
 const NAV_ITEMS = [
     { href: '/admin',           label: 'Transactions' },
     { href: '/admin/catalogue', label: 'Catalogue' },
+    { href: '/admin/clients',   label: 'Clients' },
+    { href: '/admin/villages',  label: 'Villages' },
 ];
 
 export function MobileNav() {

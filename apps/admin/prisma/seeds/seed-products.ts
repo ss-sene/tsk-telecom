@@ -1,19 +1,13 @@
 /**
  * seed-products.ts
  *
- * Peuple la table Product.
+ * Peuple la table Product avec le catalogue WOBICOM complet.
+ * Les anciens produits sont supprimés avant l'insertion.
  *
- * Mode 1 — Données statiques TDK (services ISP) :
  *   pnpm db:seed
- *
- * Mode 2 — Import catalogue matériel WOBICOM :
- *   SEED_FROM_EXCEL=true pnpm db:seed
- *   (fichier attendu : prisma/seeds/WOBICOM-Catalog.xlsx)
  */
 
 import 'dotenv/config';
-import path from 'path';
-import * as XLSX from 'xlsx';
 import { PrismaClient } from '../../src/generated/prisma/client';
 import { ProductCategory } from '../../src/generated/prisma/enums';
 import { PrismaNeon } from '@prisma/adapter-neon';
@@ -26,355 +20,1098 @@ const prisma = new PrismaClient({
   adapter: new PrismaNeon({ connectionString: process.env.DATABASE_URL! }),
 });
 
-// ─── Types internes ───────────────────────────────────────────────────────────
-
 type ProductData = Parameters<typeof prisma.product.create>[0]['data'];
 
-// ─── Données statiques — Services ISP TDK ────────────────────────────────────
+// ─── Catalogue WOBICOM complet ────────────────────────────────────────────────
 
-const STATIC_PRODUCTS: ProductData[] = [
+const PRODUCTS: ProductData[] = [
+
+  // ── WiFi Router ──────────────────────────────────────────────────────────────
+
   {
-    name: 'Box Internet 2 Mbps',
-    slug: 'box-internet-2mbps',
-    shortDescription: 'Connexion haut débit pour les usages essentiels',
-    description: 'Idéal pour la navigation web, les emails et les réseaux sociaux. Couverture nationale.',
-    category: ProductCategory.INTERNET,
-    priceXof: 10000,
-    priceUnit: 'mois',
-    speed: '2 Mbps',
-    features: [
-      'Débit garanti 2 Mbps',
-      'Routeur Wi-Fi inclus',
-      'Installation incluse',
-      'Support technique 7j/7',
-    ],
+    name: 'WR300K',
+    slug: 'wr300k',
+    shortDescription: 'Routeur WiFi 300Mbps',
+    description: 'Routeur WiFi 2.4GHz 300Mbps pour 30 utilisateurs simultanés. Idéal pour les petits foyers et bureaux avec un usage courant (navigation, réseaux sociaux, e-mails).',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 5000,
+    priceUnit: 'unique',
+    speed: '300 Mbps',
+    imageUrl: '/products/image4.png',
+    features: ['MTK Chipset, 8M RAM, 2MB Flash', '802.11n, 2.4GHz 300Mbps', '1×FE WAN + 3×FE LAN', '4×5dBi External Antennas', 'Jusqu\'à 30 utilisateurs'],
     highlighted: false,
     published: true,
     position: 10,
   },
   {
-    name: 'Box Internet 4 Mbps',
-    slug: 'box-internet-4mbps',
-    shortDescription: 'Idéal pour les familles et le télétravail léger',
-    description: 'Navigation fluide pour plusieurs appareils simultanés. Streaming HD possible.',
-    category: ProductCategory.INTERNET,
-    priceXof: 18000,
-    priceUnit: 'mois',
-    speed: '4 Mbps',
-    features: [
-      'Débit garanti 4 Mbps',
-      'Routeur Wi-Fi double bande',
-      'Installation incluse',
-      'Support technique 7j/7',
-      "Jusqu'à 5 appareils connectés",
-    ],
+    name: 'WR302K',
+    slug: 'wr302k',
+    shortDescription: 'Routeur WiFi double bande 1200Mbps',
+    description: 'Routeur WiFi double bande AC1200 pour 40 utilisateurs. Connexion stable en 2.4GHz et 5.8GHz, idéal pour les foyers et petits bureaux avec plusieurs appareils connectés.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 8500,
+    priceUnit: 'unique',
+    speed: '1200 Mbps',
+    imageUrl: '/products/image4.png',
+    features: ['MTK Chipset, 64M RAM, 8MB Flash', '802.11ac, 2.4GHz 300Mbps + 5.8GHz 887Mbps', '1×FE WAN + 3×FE LAN', '4×5dBi External Antennas', 'Jusqu\'à 40 utilisateurs'],
     highlighted: false,
     published: true,
     position: 20,
   },
   {
-    name: 'Box Fibre 10 Mbps',
-    slug: 'box-fibre-10mbps',
-    shortDescription: 'La puissance de la fibre pour votre foyer',
-    description: 'Connexion fibre optique pour un streaming fluide, les appels vidéo et le gaming.',
-    category: ProductCategory.INTERNET,
-    priceXof: 30000,
-    priceUnit: 'mois',
-    speed: '10 Mbps',
-    features: [
-      'Fibre optique FTTH',
-      'Débit symétrique 10 Mbps',
-      'Routeur Wi-Fi 6 inclus',
-      'Installation incluse',
-      'Support prioritaire',
-    ],
-    highlighted: true,
+    name: 'WR1200K',
+    slug: 'wr1200k',
+    shortDescription: 'Routeur WiFi Gigabit 1200Mbps',
+    description: 'Routeur WiFi AC1200 avec ports Gigabit pour 50 utilisateurs. Parfait pour les connexions fibre et les réseaux domestiques ou professionnels exigeants.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 8000,
+    priceUnit: 'unique',
+    speed: '1200 Mbps',
+    imageUrl: '/products/image5.jpeg',
+    features: ['MTK Chipset, 128M RAM, 16MB Flash', '802.11ac, 2.4GHz 300Mbps + 5.8GHz 887Mbps', '1×GE WAN + 3×GE LAN', '4×5dBi MIMO External Antennas', 'Jusqu\'à 50 utilisateurs'],
+    highlighted: false,
     published: true,
     position: 30,
   },
   {
-    name: 'Box Fibre 20 Mbps',
-    slug: 'box-fibre-20mbps',
-    shortDescription: 'Haut débit pour les familles connectées',
-    description: 'Fibre optique haute performance pour toute la maison. Streaming 4K, gaming, vidéoconférences.',
-    category: ProductCategory.INTERNET,
-    priceXof: 50000,
-    priceUnit: 'mois',
-    speed: '20 Mbps',
-    features: [
-      'Fibre optique FTTH',
-      'Débit symétrique 20 Mbps',
-      'Routeur Wi-Fi 6 inclus',
-      'Installation incluse',
-      'IP fixe disponible',
-      'Support prioritaire 24h/24',
-    ],
+    name: 'WR1500K',
+    slug: 'wr1500k',
+    shortDescription: 'Routeur WiFi 6 1500Mbps',
+    description: 'Routeur WiFi 6 AX1500 Gigabit pour 100 utilisateurs. Dernière génération WiFi 6 pour les foyers et PME avec de nombreux appareils connectés simultanément.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 9000,
+    priceUnit: 'unique',
+    speed: '1500 Mbps',
+    imageUrl: '/products/image6.jpeg',
+    features: ['RTL Chipset, 128M RAM, 16MB Flash', '802.11ax, 2.4GHz 300Mbps + 5.8GHz 1200Mbps', '1×GE WAN + 3×GE LAN', '4×5dBi MIMO2×2 External Antennas', 'Jusqu\'à 100 utilisateurs'],
     highlighted: false,
     published: true,
     position: 40,
   },
   {
-    name: 'Box Fibre 50 Mbps',
-    slug: 'box-fibre-50mbps',
-    shortDescription: 'Pour les professionnels et les grandes familles',
-    description: "La meilleure expérience Internet à domicile. Idéal pour le télétravail intensif et les loisirs numériques.",
-    category: ProductCategory.INTERNET,
-    priceXof: 80000,
-    priceUnit: 'mois',
-    speed: '50 Mbps',
-    features: [
-      'Fibre optique FTTH',
-      'Débit symétrique 50 Mbps',
-      'Routeur Wi-Fi 6 Pro inclus',
-      'Installation incluse',
-      'IP fixe incluse',
-      'SLA 99,9% garanti',
-      'Support dédié 24h/24',
-    ],
+    name: 'WR1800K',
+    slug: 'wr1800k',
+    shortDescription: 'Routeur WiFi 6 1800Mbps haute performance',
+    description: 'Routeur WiFi 6 AX1800 Gigabit pour 100 utilisateurs avec 256M RAM. Performances élevées pour les usages intensifs : streaming 4K, gaming, visioconférence.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 13500,
+    priceUnit: 'unique',
+    speed: '1800 Mbps',
+    imageUrl: '/products/image7.jpeg',
+    features: ['MTK Chipset, 256M RAM, 128MB Flash', '802.11ax, 2.4GHz 600Mbps + 5.8GHz 1201Mbps', '1×GE WAN + 3×GE LAN', '4×5dBi MIMO2×2 External Antennas', 'Jusqu\'à 100 utilisateurs'],
     highlighted: false,
     published: true,
     position: 50,
   },
   {
-    name: 'Starlink Résidentiel',
-    slug: 'starlink-residentiel',
-    shortDescription: 'Internet par satellite partout au Sénégal',
-    description: "Couverture satellite Starlink — haut débit dans les zones rurales et reculées. Kit antenne + installation par nos techniciens agréés.",
-    category: ProductCategory.STARLINK,
-    priceXof: 45000,
-    priceUnit: 'mois',
-    speed: '25–100 Mbps',
-    features: [
-      'Couverture nationale par satellite',
-      'Débit 25–100 Mbps selon conditions',
-      'Kit antenne Starlink inclus',
-      'Installation par technicien agréé',
-      'Fonctionne sans réseau filaire',
-      'Idéal zones rurales et villageoises',
-    ],
+    name: 'WR3000H',
+    slug: 'wr3000h',
+    shortDescription: 'Routeur WiFi 6 3000Mbps Hisilicon',
+    description: 'Routeur WiFi 6 AX3000 Gigabit Hisilicon pour 100 utilisateurs. Performances optimales pour les entreprises, centres de coworking et déploiements communautaires.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 12000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image8.jpeg',
+    features: ['Hisilicon Chipset, 256M RAM, 128MB Flash', '802.11ax, 2.4GHz 574Mbps + 5.8GHz 2402Mbps', '1×GE WAN + 3×GE LAN', '4×5dBi MIMO3×3 External Antennas', 'Jusqu\'à 100 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 60,
+  },
+  {
+    name: 'WR3000K',
+    slug: 'wr3000k',
+    shortDescription: 'Routeur WiFi 6 3000Mbps MTK — Haut de gamme',
+    description: 'Routeur WiFi 6 AX3000 Gigabit MTK pour 100 utilisateurs avec 512M RAM. Le summum de la gamme routeur pour les déploiements professionnels et communautaires les plus exigeants.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 14000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image9.jpeg',
+    features: ['MTK Chipset, 512M RAM, 128MB Flash', '802.11ax, 2.4GHz 574Mbps + 5.8GHz 2402Mbps', '1×GE WAN + 3×GE LAN', '6×5dBi MIMO3×3 External Antennas', 'Jusqu\'à 100 utilisateurs'],
     highlighted: true,
+    published: true,
+    position: 70,
+  },
+
+  // ── GPON / EPON / ONU ────────────────────────────────────────────────────────
+
+  {
+    name: 'WB8812',
+    slug: 'wb8812',
+    shortDescription: 'Modem ONU GPON/EPON WiFi 1200Mbps',
+    description: 'Modem ONU GPON/EPON WiFi double bande 1200Mbps. Compatible fibre optique avec 4 ports LAN Gigabit, un port téléphone RJ11 et un port USB 2.0 pour le partage de fichiers.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 11500,
+    priceUnit: 'unique',
+    speed: '1200 Mbps',
+    imageUrl: '/products/image10.jpeg',
+    features: ['Hisilicon Chipset, 64M RAM, 8MB Flash', '802.11ac, 2.4GHz 300Mbps + 5.8GHz 887Mbps', '4×GE RJ45 + 1×RJ11 + 1×USB2.0', '2×5dBi MIMO External Antennas'],
+    highlighted: false,
     published: true,
     position: 100,
   },
   {
-    name: 'Starlink Business',
-    slug: 'starlink-business',
-    shortDescription: 'Performance satellite pour les entreprises',
-    description: "Solution Starlink prioritaire pour les entreprises, ONG et institutions. Débit garanti avec SLA dédié.",
-    category: ProductCategory.STARLINK,
-    priceXof: null,
-    priceUnit: 'mois',
-    speed: '40–220 Mbps',
-    features: [
-      'Débit prioritaire garanti',
-      'Kit antenne Business inclus',
-      'SLA entreprise dédié',
-      'IP fixe incluse',
-      'Support technique premium',
-      'Facturation sur devis',
-    ],
+    name: 'WB8830',
+    slug: 'wb8830',
+    shortDescription: 'Modem ONU XPON WiFi 6 3000Mbps',
+    description: 'Modem ONU XPON (GPON/EPON) WiFi 6 3000Mbps avec 256M RAM. Compatible fibre optique FTTH avec connectivité WiFi 6 haute vitesse, 4 ports LAN Gigabit et port téléphone.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 14000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image11.jpeg',
+    features: ['Hisilicon Chipset, 256M RAM, 128MB Flash', '802.11ac, 2.4GHz 300Mbps + 5.8GHz 887Mbps', '4×GE RJ45 + 1×RJ11 + 1×USB2.0', '4×5dBi MIMO External Antennas'],
     highlighted: false,
     published: true,
     position: 110,
   },
+
+  // ── 4G/5G Wireless Router ─────────────────────────────────────────────────────
+
   {
-    name: 'Pack Téléphonie IP',
-    slug: 'pack-telephonie-ip',
-    shortDescription: 'Téléphonie professionnelle sur IP',
-    description: "Solution VoIP pour entreprises : numéros locaux, international illimité, standard virtuel.",
-    category: ProductCategory.TELEPHONIE,
-    priceXof: null,
-    priceUnit: 'mois',
-    speed: null,
-    features: [
-      'Numéros locaux Dakar inclus',
-      'Appels internationaux illimités',
-      'Standard virtuel (IVR)',
-      'Application mobile incluse',
-      'Portabilité de numéro',
-    ],
+    name: 'T300',
+    slug: 't300',
+    shortDescription: 'Mini routeur 4G CAT4 WiFi 300Mbps',
+    description: 'Mini routeur 4G LTE CAT4 WiFi 300Mbps compact et facile à installer. Idéal pour les zones couvertes par le réseau 4G pour partager la connexion mobile avec jusqu\'à 32 appareils.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 12000,
+    priceUnit: 'unique',
+    speed: '300 Mbps',
+    imageUrl: '/products/image12.jpeg',
+    features: ['AIC WiFi Chipset, 2.4G 300Mbps', 'Support LTE-TDD/LTE-FDD, WCDMA', 'Antenne interne : 1×5dBi WiFi + 2×5dBi 4G', '1×100Mbps WAN/LAN', 'Jusqu\'à 32 utilisateurs'],
     highlighted: false,
-    published: false,
+    published: true,
     position: 200,
   },
+  {
+    name: 'T500',
+    slug: 't500',
+    shortDescription: 'Routeur 4G CAT4 avec 4 ports LAN',
+    description: 'Routeur 4G LTE CAT4 WiFi 300Mbps avec 4 ports réseau. Solution complète pour partager la connexion mobile en intérieur avec plusieurs postes de travail ou appareils.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 13500,
+    priceUnit: 'unique',
+    speed: '300 Mbps',
+    imageUrl: '/products/image13.jpeg',
+    features: ['MTK WiFi Chipset, 2.4G 300Mbps', 'Support LTE-TDD/LTE-FDD, WCDMA', 'Antenne externe : 2×5dBi WiFi + 2×5dBi 4G', '1×100Mbps WAN + 3×100Mbps LAN', 'Jusqu\'à 32 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 210,
+  },
+  {
+    name: 'T600',
+    slug: 't600',
+    shortDescription: 'Routeur 4G CAT4 antennes détachables',
+    description: 'Routeur 4G LTE CAT4 WiFi 300Mbps avec antennes détachables 4×5dBi WiFi et 2×5dBi 4G. Excellent pour améliorer le signal dans les zones à couverture 4G limitée.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 17000,
+    priceUnit: 'unique',
+    speed: '300 Mbps',
+    imageUrl: '/products/image14.jpeg',
+    features: ['MTK WiFi Chipset, 2.4G 300Mbps', 'Support LTE-TDD/LTE-FDD, WCDMA', 'Antenne détachable : 4×5dBi WiFi + 2×5dBi 4G', '1×100Mbps WAN + 2×100Mbps LAN', 'Jusqu\'à 32 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 220,
+  },
+  {
+    name: 'T1200',
+    slug: 't1200',
+    shortDescription: 'Routeur 4G CAT4 double bande 1200Mbps',
+    description: 'Routeur 4G LTE CAT4 double bande AC1200 pour 64 utilisateurs. Connexion 4G stable distribuée en WiFi 2.4GHz et 5.8GHz simultanément, idéal pour les bureaux et commerces.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 18000,
+    priceUnit: 'unique',
+    speed: '1200 Mbps',
+    imageUrl: '/products/image15.jpeg',
+    features: ['MTK WiFi, 802.11ac, 2.4GHz 300Mbps + 5.8GHz 887Mbps', 'Support LTE-TDD/LTE-FDD, WCDMA', 'Antenne : 4×5dBi WiFi + 2×5dBi 4G', '1×100Mbps WAN + 2×100Mbps LAN', 'Jusqu\'à 64 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 230,
+  },
+  {
+    name: 'Q300',
+    slug: 'q300',
+    shortDescription: 'Routeur 4G outdoor IP65 CAT4',
+    description: 'Routeur 4G LTE CAT4 outdoor étanche IP65 pour 32 utilisateurs. Conçu pour une installation extérieure exposée aux intempéries, parfait pour les kiosques, marchés et zones découvertes.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 18000,
+    priceUnit: 'unique',
+    speed: '300 Mbps',
+    imageUrl: '/products/image16.jpeg',
+    features: ['MTK WiFi Chipset, 2.4G 300Mbps', 'Support LTE-TDD/LTE-FDD, WCDMA', 'Antenne interne : 2×5dBi WiFi + 2×5dBi 4G', '1×100Mbps WAN + 1×100Mbps LAN', 'Boîtier IP65 résistant aux intempéries'],
+    highlighted: false,
+    published: true,
+    position: 240,
+  },
+  {
+    name: 'T200M',
+    slug: 't200m',
+    shortDescription: 'Routeur 4G industriel CAT4',
+    description: 'Routeur 4G LTE CAT4 industriel robuste pour 32 utilisateurs. Conçu pour les applications spécialisées avec ports série RS232 et RS485 intégrés pour les équipements industriels et IoT.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 27000,
+    priceUnit: 'unique',
+    speed: '300 Mbps',
+    imageUrl: null,
+    features: ['MTK WiFi Chipset, 2.4G 300Mbps', 'Support LTE-TDD/LTE-FDD, WCDMA', 'Antenne détachable : 2×5dBi WiFi + 2×5dBi 4G', 'Ports série RS232 et RS485', '1×100Mbps WAN + 4×100Mbps LAN'],
+    highlighted: false,
+    published: true,
+    position: 250,
+  },
+  {
+    name: 'G2000',
+    slug: 'g2000',
+    shortDescription: 'CPE 5G WiFi 6 AX1800',
+    description: 'CPE 5G WiFi 6 AX1800 pour 128 utilisateurs. Connectivité 5G haut débit pour les maisons et petites entreprises souhaitant profiter des réseaux 5G disponibles avec WiFi 6 intégré.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 51000,
+    priceUnit: 'unique',
+    speed: '1800 Mbps',
+    imageUrl: '/products/image17.png',
+    features: ['AIC WiFi, 802.11ax, 2.4GHz 600Mbps + 5.8GHz 1201Mbps', 'Module 5G : ZX298501S', 'Antenne interne : 2×5dBi WiFi + 4×5dBi 4G/5G', '1×GE WAN + 3×GE LAN', 'Jusqu\'à 128 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 260,
+  },
+  {
+    name: 'G3000',
+    slug: 'g3000',
+    shortDescription: 'CPE 5G NSA/SA WiFi 7 BE7200 — Haut de gamme',
+    description: 'CPE 5G NSA/SA WiFi 7 BE7200 avec module Qualcomm SDX72-GL pour 256 utilisateurs. La solution haut de gamme pour les réseaux 5G ultra-rapides avec la technologie WiFi 7 dernière génération.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 156000,
+    priceUnit: 'unique',
+    speed: '7200 Mbps',
+    imageUrl: '/products/image18.jpeg',
+    features: ['MTK WiFi, 802.11be, MIMO 4×4, 2.4G & 5.8G', 'Module 5G : Qualcomm SDX72-GL', 'Antenne interne : 4×5dBi WiFi + 4×5dBi 4G/5G', '1×GE WAN (2.5G opt.) + 1×GE LAN + 1×RJ11', 'Jusqu\'à 256 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 270,
+  },
+  {
+    name: 'G5000',
+    slug: 'g5000',
+    shortDescription: 'CPE 5G NSA/SA WiFi 6 AX3000',
+    description: 'CPE 5G NSA/SA WiFi 6 AX3000 pour 128 utilisateurs avec antennes détachables et module Qualcomm SDX62-GL. Idéal pour les entreprises et commerces souhaitant une connectivité 5G fiable.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 132000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image19.jpeg',
+    features: ['MTK WiFi, 802.11ax, 2.4GHz 574Mbps + 5.8GHz 2402Mbps', 'Module 5G : SDX62-GL (SDX75-GL opt.)', 'Antenne détachable : 4×5dBi WiFi + 4×5dBi 4G/5G', '1×GE WAN (2.5G opt.) + 2×GE LAN', 'Jusqu\'à 128 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 280,
+  },
+  {
+    name: 'G6000',
+    slug: 'g6000',
+    shortDescription: 'CPE 5G industriel WiFi 6 AX3000',
+    description: 'CPE 5G NSA/SA industriel WiFi 6 AX3000 pour environnements exigeants. Conception robuste pour les déploiements professionnels en milieu contraignant avec le même module Qualcomm que le G5000.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 147000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image20.jpeg',
+    features: ['MTK WiFi, 802.11ax, 2.4GHz 574Mbps + 5.8GHz 2402Mbps', 'Module 5G : SDX62-GL (SDX75-GL opt.)', 'Antenne détachable : 4×5dBi WiFi + 4×5dBi 4G/5G', '1×GE WAN (2.5G opt.) + 2×GE LAN', 'Usage industriel'],
+    highlighted: false,
+    published: true,
+    position: 290,
+  },
+  {
+    name: 'G8000',
+    slug: 'g8000',
+    shortDescription: 'CPE 5G outdoor IP67 WiFi 6 AX3000',
+    description: 'CPE 5G NSA/SA outdoor étanche IP67 WiFi 6 AX3000 pour 128 utilisateurs. Entièrement résistant à la poussière et aux jets d\'eau pour les installations extérieures en environnement difficile.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 168000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image21.jpeg',
+    features: ['MTK WiFi, 802.11ax, 2.4GHz 574Mbps + 5.8GHz 2402Mbps', 'Module 5G : SDX62-GL (SDX75-GL opt.)', 'Antenne détachable : 2×5dBi WiFi + 4×5dBi 4G/5G', '1×GE WAN (2.5G opt.)', 'Boîtier outdoor IP67'],
+    highlighted: false,
+    published: true,
+    position: 300,
+  },
+  {
+    name: 'M-X6',
+    slug: 'm-x6',
+    shortDescription: 'ODU 5G outdoor IP67 WiFi 6',
+    description: 'Unité extérieure (ODU) 5G NSA/SA outdoor IP67 WiFi 6 pour 128 utilisateurs. Conçue pour les déploiements professionnels en zone exposée avec une connectivité 5G et WiFi 6 intégrée.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 156000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image22.jpeg',
+    features: ['MTK WiFi, 802.11ax, 2.4GHz 574Mbps + 5.8GHz 2402Mbps', 'Module 5G : SDX62-GL (SDX75-GL opt.)', 'Antenne détachable : 4×5dBi 4G/5G', '1×GE WAN (2.5G opt.)', 'Boîtier outdoor IP67'],
+    highlighted: false,
+    published: true,
+    position: 310,
+  },
+  {
+    name: 'WB200',
+    slug: 'wb200',
+    shortDescription: 'Radio outdoor PtP/PtMP 2.4GHz 300Mbps IP65',
+    description: 'Radio outdoor point à point / point à multipoints 2.4GHz 300Mbps IP65. Solution économique pour les liaisons sans fil entre bâtiments ou pour distribuer internet dans un quartier.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 5500,
+    priceUnit: 'unique',
+    speed: '300 Mbps',
+    imageUrl: '/products/image23.jpeg',
+    features: ['MTK Chipset, 64M RAM, 8MB Flash', '802.11n, 2.4GHz 300Mbps', '2×100Mbps RJ45', 'MIMO 2×2, 6dBi, angle 60°/60°', 'Boîtier IP65'],
+    highlighted: false,
+    published: true,
+    position: 320,
+  },
+  {
+    name: 'WB201',
+    slug: 'wb201',
+    shortDescription: 'Radio outdoor PtP/PtMP 5.8GHz 867Mbps IP65',
+    description: 'Radio outdoor point à point / point à multipoints 5.8GHz AC 867Mbps IP65. Version 5GHz plus rapide que le WB200 pour les liaisons sans fil entre bâtiments ou zones à connecter.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 8000,
+    priceUnit: 'unique',
+    speed: '867 Mbps',
+    imageUrl: '/products/image23.jpeg',
+    features: ['MTK Chipset, 64M RAM, 8MB Flash', '802.11ac, 5.8GHz 867Mbps', '2×100Mbps RJ45', 'MIMO 2×2, 8dBi, angle 60°/60°', 'Boîtier IP65'],
+    highlighted: false,
+    published: true,
+    position: 330,
+  },
+  {
+    name: 'WB540',
+    slug: 'wb540',
+    shortDescription: 'CPE/Bridge outdoor 450Mbps IP65',
+    description: 'CPE/Bridge outdoor 450Mbps IP65 avec affichage numérique intégré et connexion One-Key simplifiée. Parfait pour connecter deux points distants sans configuration complexe.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 11500,
+    priceUnit: 'unique',
+    speed: '450 Mbps',
+    imageUrl: '/products/image24.jpeg',
+    features: ['Flash/RAM : 8MB/64MB', '802.11ac, 450Mbps', '1×WAN + 1×LAN', 'Affichage numérique intégré', 'Connexion One-Key simplifiée'],
+    highlighted: false,
+    published: true,
+    position: 340,
+  },
+  {
+    name: 'WB620',
+    slug: 'wb620',
+    shortDescription: 'CPE/Bridge outdoor Gigabit 900Mbps IP65',
+    description: 'CPE/Bridge outdoor Gigabit 900Mbps IP65 avec affichage numérique. Version Gigabit du WB540 pour les liaisons point à point nécessitant plus de bande passante entre deux bâtiments.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 14500,
+    priceUnit: 'unique',
+    speed: '900 Mbps',
+    imageUrl: '/products/image24.jpeg',
+    features: ['Flash/RAM : 8MB/64MB', '802.11ac, 900Mbps', '1×WAN + 1×LAN', 'Affichage numérique intégré', 'Connexion One-Key simplifiée'],
+    highlighted: false,
+    published: true,
+    position: 350,
+  },
+  {
+    name: 'WB3acPtP',
+    slug: 'wb3acptp',
+    shortDescription: 'Radio PtP/PtMP outdoor 5.8GHz 867Mbps 3dBi IP65',
+    description: 'Radio outdoor PtP/PtMP 5.8GHz AC 867Mbps avec Qualcomm, 2 ports Gigabit et couverture directionnelle 30°/15°. Conçue pour les liaisons professionnelles courte et moyenne portée.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 21000,
+    priceUnit: 'unique',
+    speed: '867 Mbps',
+    imageUrl: '/products/image25.png',
+    features: ['Qualcomm Chipset, 64M RAM, 16MB Flash', '802.11ac, 5.8GHz 867Mbps', '2×1000Mbps RJ45', 'MIMO 2×2, couverture 30°/15°', 'Boîtier IP65'],
+    highlighted: false,
+    published: true,
+    position: 360,
+  },
+  {
+    name: 'WB5acPtP',
+    slug: 'wb5acptp',
+    shortDescription: 'Radio PtP/PtMP outdoor 5.8GHz 867Mbps 5dBi IP65',
+    description: 'Radio outdoor PtP/PtMP 5.8GHz AC 867Mbps 5dBi avec Qualcomm et 2 ports Gigabit. Gain d\'antenne plus élevé que le WB3acPtP pour des liaisons longue portée améliorées.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 27000,
+    priceUnit: 'unique',
+    speed: '867 Mbps',
+    imageUrl: '/products/image25.png',
+    features: ['Qualcomm Chipset, 64M RAM, 16MB Flash', '802.11ac, 5.8GHz 867Mbps', '2×1000Mbps RJ45', 'MIMO 2×2, couverture 30°/15°', 'Boîtier IP65'],
+    highlighted: false,
+    published: true,
+    position: 370,
+  },
+  {
+    name: 'WB8acPtP',
+    slug: 'wb8acptp',
+    shortDescription: 'Radio PtP/PtMP outdoor 5.8GHz 867Mbps 8dBi IP65',
+    description: 'Radio outdoor PtP/PtMP 5.8GHz AC 867Mbps 8dBi haute puissance avec Qualcomm. Idéale pour les liaisons longue distance entre quartiers, villages ou bâtiments distants.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 29000,
+    priceUnit: 'unique',
+    speed: '867 Mbps',
+    imageUrl: '/products/image26.jpeg',
+    features: ['Qualcomm Chipset, 64M RAM, 16MB Flash', '802.11ac, 5.8GHz 867Mbps', '2×1000Mbps RJ45', 'MIMO 2×2, couverture 30°/15°', 'Boîtier IP65'],
+    highlighted: false,
+    published: true,
+    position: 380,
+  },
+  {
+    name: 'WB10acPtP',
+    slug: 'wb10acptp',
+    shortDescription: 'Radio PtP/PtMP outdoor 5.8GHz 867Mbps 10dBi IP65',
+    description: 'Radio outdoor PtP/PtMP 5.8GHz AC 867Mbps 10dBi très longue portée avec Qualcomm. Pour les déploiements ruraux nécessitant de couvrir de grandes distances entre points.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 33000,
+    priceUnit: 'unique',
+    speed: '867 Mbps',
+    imageUrl: '/products/image26.jpeg',
+    features: ['Qualcomm Chipset, 64M RAM, 16MB Flash', '802.11ac, 5.8GHz 867Mbps', '2×1000Mbps RJ45', 'MIMO 2×2, couverture 30°/15°', 'Boîtier IP65'],
+    highlighted: false,
+    published: true,
+    position: 390,
+  },
+  {
+    name: 'WB20acDish',
+    slug: 'wb20acdish',
+    shortDescription: 'Antenne parabolique PtP/PtMP 5.8GHz 23dBi IP65',
+    description: 'Radio outdoor PtP/PtMP 5.8GHz AC 867Mbps avec antenne parabolique 23dBi IP65. Pour les liaisons très longue distance entre deux points fixes : villages, sites télécom, collines.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 39000,
+    priceUnit: 'unique',
+    speed: '867 Mbps',
+    imageUrl: '/products/image27.jpeg',
+    features: ['Qualcomm Chipset, 64M RAM, 16MB Flash', '802.11ac, 5.8GHz 867Mbps', '2×1000Mbps RJ45', 'MIMO 2×2, antenne 23dBi, couverture 30°/15°', 'Boîtier IP65'],
+    highlighted: false,
+    published: true,
+    position: 400,
+  },
+  {
+    name: 'WB25acDish',
+    slug: 'wb25acdish',
+    shortDescription: 'Antenne parabolique PtP/PtMP 5.8GHz 27dBi IP65',
+    description: 'Radio outdoor PtP/PtMP 5.8GHz AC 867Mbps avec antenne parabolique 27dBi et 128M RAM IP65. Gain supérieur pour les liaisons ultra-longue distance en zone rurale ou montagneuse.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 51000,
+    priceUnit: 'unique',
+    speed: '867 Mbps',
+    imageUrl: '/products/image28.jpeg',
+    features: ['Qualcomm Chipset, 128M RAM, 16MB Flash', '802.11ac, 5.8GHz 867Mbps', '2×1000Mbps RJ45', 'MIMO 2×2, antenne 27dBi, couverture 30°/15°', 'Boîtier IP65'],
+    highlighted: false,
+    published: true,
+    position: 410,
+  },
+  {
+    name: 'WB30acDish',
+    slug: 'wb30acdish',
+    shortDescription: 'Parabolique PtP/PtMP Wave2 5.8GHz 29dBi IP65',
+    description: 'Radio outdoor PtP/PtMP Wave2 5.8GHz AC 867Mbps avec antenne parabolique double polarisation 29dBi IP65. Solution de référence pour les liaisons télécoms en zone rurale ou reculée.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 96000,
+    priceUnit: 'unique',
+    speed: '867 Mbps',
+    imageUrl: '/products/image29.png',
+    features: ['Qualcomm Chipset, 128M RAM, 16MB Flash', '802.11ac Wave2, 5.8GHz 867Mbps', '2×1000Mbps RJ45', 'Antenne parabolique double polarisation 29dBi', 'Boîtier IP65'],
+    highlighted: false,
+    published: true,
+    position: 420,
+  },
+  {
+    name: 'WB35acDish',
+    slug: 'wb35acdish',
+    shortDescription: 'Parabolique PtP/PtMP Wave2 5.8GHz 32dBi IP65',
+    description: 'Radio outdoor PtP/PtMP Wave2 5.8GHz AC 867Mbps avec antenne parabolique double polarisation 32dBi IP65. Le gain le plus élevé de la gamme AC pour les liaisons critiques très longue distance.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 150000,
+    priceUnit: 'unique',
+    speed: '867 Mbps',
+    imageUrl: '/products/image29.png',
+    features: ['Qualcomm Chipset, 128M RAM, 16MB Flash', '802.11ac Wave2, 5.8GHz 867Mbps', '2×1000Mbps RJ45', 'Antenne parabolique double polarisation 32dBi', 'Boîtier IP65'],
+    highlighted: false,
+    published: true,
+    position: 430,
+  },
+  {
+    name: 'WB20axPtP',
+    slug: 'wb20axptp',
+    shortDescription: 'Radio WiFi 6 PtP/PtMP 5.8GHz 2400Mbps 23dBi IP67',
+    description: 'Radio outdoor PtP/PtMP WiFi 6 (802.11ax) 5.8GHz 2400Mbps avec antenne directionnelle interne 23dBi IP67. Nouvelle génération de liaisons radio haute performance avec 512M RAM.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 72000,
+    priceUnit: 'unique',
+    speed: '2400 Mbps',
+    imageUrl: '/products/image3.png',
+    features: ['Qualcomm Chipset, 512M RAM, 128MB Flash', 'WiFi 6, 802.11ax, 5.8GHz 2400Mbps', '1×GE SFP + 2×GE RJ45', 'Antenne interne directionnelle 23dBi', 'Boîtier IP67'],
+    highlighted: false,
+    published: true,
+    position: 440,
+  },
+  {
+    name: 'WB30axDish',
+    slug: 'wb30axdish',
+    shortDescription: 'Parabolique WiFi 6 PtP/PtMP 5.8GHz 2400Mbps 29dBi IP67',
+    description: 'Radio outdoor PtP/PtMP WiFi 6 (802.11ax) 5.8GHz 2400Mbps avec antenne parabolique 29dBi IP67. Haute performance et longue portée pour les liaisons critiques de nouvelle génération.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 108000,
+    priceUnit: 'unique',
+    speed: '2400 Mbps',
+    imageUrl: '/products/image29.png',
+    features: ['Qualcomm Chipset, 512M RAM, 128MB Flash', 'WiFi 6, 802.11ax, 5.8GHz 2400Mbps', '1×GE SFP + 2×GE RJ45', 'Antenne parabolique double polarisation 29dBi', 'Boîtier IP67'],
+    highlighted: false,
+    published: true,
+    position: 450,
+  },
+  {
+    name: 'WB35axDish',
+    slug: 'wb35axdish',
+    shortDescription: 'Parabolique WiFi 6 PtP/PtMP 5.8GHz 2400Mbps 32dBi IP67',
+    description: 'Radio outdoor PtP/PtMP WiFi 6 (802.11ax) 5.8GHz 2400Mbps avec antenne parabolique 32dBi IP67. Le meilleur de la gamme WiFi 6 pour les liaisons longue distance les plus exigeantes.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 168000,
+    priceUnit: 'unique',
+    speed: '2400 Mbps',
+    imageUrl: '/products/image29.png',
+    features: ['Qualcomm Chipset, 512M RAM, 128MB Flash', 'WiFi 6, 802.11ax, 5.8GHz 2400Mbps', '1×GE SFP + 2×GE RJ45', 'Antenne parabolique double polarisation 32dBi', 'Boîtier IP67'],
+    highlighted: false,
+    published: true,
+    position: 460,
+  },
+  {
+    name: 'WB20axPtP6E',
+    slug: 'wb20axptp6e',
+    shortDescription: 'Radio WiFi 6E PtP/PtMP 5.9-7.1GHz 2882Mbps 23dBi IP67',
+    description: 'Radio outdoor PtP/PtMP WiFi 6E (802.11ax) 5.9-7.1GHz 2882Mbps avec antenne directionnelle 23dBi IP67. La bande 6GHz sans interférences pour des performances sans précédent sur les liaisons point à point.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 81000,
+    priceUnit: 'unique',
+    speed: '2882 Mbps',
+    imageUrl: '/products/image3.png',
+    features: ['Qualcomm Chipset, 512M RAM, 128MB Flash', 'WiFi 6E, 802.11ax, 5.9-7.1GHz 2882Mbps', '1×GE SFP + 2×GE RJ45', 'Antenne interne directionnelle 23dBi', 'Boîtier IP67'],
+    highlighted: false,
+    published: true,
+    position: 470,
+  },
+  {
+    name: 'WB30axDish6E',
+    slug: 'wb30axdish6e',
+    shortDescription: 'Parabolique WiFi 6E PtP/PtMP 5.9-7.1GHz 2882Mbps 29dBi IP67',
+    description: 'Radio outdoor PtP/PtMP WiFi 6E (802.11ax) 5.9-7.1GHz 2882Mbps avec antenne parabolique 29dBi IP67. Bande 6GHz et gain élevé pour les liaisons longue distance nouvelle génération.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 210000,
+    priceUnit: 'unique',
+    speed: '2882 Mbps',
+    imageUrl: '/products/image30.png',
+    features: ['Qualcomm Chipset, 512M RAM, 128MB Flash', 'WiFi 6E, 802.11ax, 5.9-7.1GHz 2882Mbps', '1×GE SFP + 2×GE RJ45', 'Antenne parabolique double polarisation 29dBi', 'Boîtier IP67'],
+    highlighted: false,
+    published: true,
+    position: 480,
+  },
+  {
+    name: 'WB35axDish6E',
+    slug: 'wb35axdish6e',
+    shortDescription: 'Parabolique WiFi 6E PtP/PtMP 5.9-7.1GHz 2882Mbps 32dBi IP67',
+    description: 'Radio outdoor PtP/PtMP WiFi 6E (802.11ax) 5.9-7.1GHz 2882Mbps avec antenne parabolique 32dBi IP67. Le summum des radios outdoor WiFi 6E pour les liaisons critiques ultra-longue distance.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 228000,
+    priceUnit: 'unique',
+    speed: '2882 Mbps',
+    imageUrl: '/products/image31.png',
+    features: ['Qualcomm Chipset, 512M RAM, 128MB Flash', 'WiFi 6E, 802.11ax, 5.9-7.1GHz 2882Mbps', '1×GE SFP + 2×GE RJ45', 'Antenne parabolique double polarisation 32dBi', 'Boîtier IP67'],
+    highlighted: false,
+    published: true,
+    position: 490,
+  },
+  {
+    name: 'WB535-T',
+    slug: 'wb535-t',
+    shortDescription: 'Station de base TDMA outdoor 5.8GHz 867Mbps IP67',
+    description: 'Station de base TDMA outdoor 5.8GHz WiFi 5 867Mbps IP67 avec support ATPC et IPv6. Gère jusqu\'à 40 clients WB535-R simultanément, idéale pour les réseaux ruraux communautaires.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 96000,
+    priceUnit: 'unique',
+    speed: '867 Mbps',
+    imageUrl: '/products/image32.png',
+    features: ['Qualcomm Chipset, 128M RAM, 16MB Flash', 'WiFi 5, 802.11ac, 5.8GHz 867Mbps', '2×GE RJ45', 'Support ATPC, IPv6, TDMA', 'Gère jusqu\'à 40 clients WB535-R'],
+    highlighted: false,
+    published: true,
+    position: 500,
+  },
+  {
+    name: 'WB535-R',
+    slug: 'wb535-r',
+    shortDescription: 'Client TDMA outdoor 5.8GHz 300Mbps IP67',
+    description: 'Client TDMA outdoor 5.8GHz WiFi 4 300Mbps IP67, compatible avec la station de base WB535-T. Conçu pour les réseaux ruraux à gestion centralisée, simple à déployer chez les abonnés.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 18000,
+    priceUnit: 'unique',
+    speed: '300 Mbps',
+    imageUrl: '/products/image33.png',
+    features: ['Qualcomm Chipset, 64M RAM, 8MB Flash', 'WiFi 4, 802.11n, 5.8GHz 300Mbps', '2×FE RJ45', 'Compatible WB535-T (jusqu\'à 40 clients)', 'Boîtier IP67'],
+    highlighted: false,
+    published: true,
+    position: 510,
+  },
+
+  // ── Indoor Access Point ───────────────────────────────────────────────────────
+
+  {
+    name: 'MS1200K',
+    slug: 'ms1200k',
+    shortDescription: 'Borne WiFi plafonnier AC1200 100mW — 32 utilisateurs',
+    description: 'Borne WiFi plafonnier double bande AC1200 haute puissance 100mW pour 32 utilisateurs. Installation murale ou au plafond, idéale pour les boutiques, petits bureaux et salles de réunion.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 11000,
+    priceUnit: 'unique',
+    speed: '1200 Mbps',
+    imageUrl: '/products/image34.png',
+    features: ['MTK Chipset, 64MB DDR2, 8MB Flash', '100mW haute puissance', '802.11AC, 2.4G & 5.8G 1200Mbps', 'MIMO 2×2, 4×3dBi antenne intégrée', '1×FE WAN + 1×FE LAN, jusqu\'à 32 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 600,
+  },
+  {
+    name: 'MS1200KG',
+    slug: 'ms1200kg',
+    shortDescription: 'Borne WiFi plafonnier AC1200 Gigabit 100mW — 64 utilisateurs',
+    description: 'Borne WiFi plafonnier double bande AC1200 Gigabit Wave2 100mW pour 64 utilisateurs. Version Gigabit du MS1200K pour une meilleure fluidité dans les environnements avec beaucoup d\'appareils.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 14000,
+    priceUnit: 'unique',
+    speed: '1200 Mbps',
+    imageUrl: '/products/image34.png',
+    features: ['MTK Chipset, 64MB DDR2, 8MB Flash', '100mW haute puissance', 'Wave2 MIMO 2×2, 4×3dBi antenne intégrée', '1×GE WAN + 1×GE LAN', 'Jusqu\'à 64 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 610,
+  },
+  {
+    name: 'MS1200M',
+    slug: 'ms1200m',
+    shortDescription: 'Borne WiFi plafonnier AC1200 RTL 100mW — 32 utilisateurs',
+    description: 'Borne WiFi plafonnier double bande AC1200 RTL 100mW pour 32 utilisateurs avec port Gigabit. Solution économique et fiable pour équiper les petits espaces professionnels ou domestiques.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 13000,
+    priceUnit: 'unique',
+    speed: '1200 Mbps',
+    imageUrl: '/products/image35.png',
+    features: ['RTL Chipset, 64MB DDR2, 8MB Flash', '100mW haute puissance', 'Wave2 MIMO 2×2, 4×3dBi antenne intégrée', '1×GE WAN + 1×GE LAN', 'Jusqu\'à 32 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 620,
+  },
+  {
+    name: 'MS3000M',
+    slug: 'ms3000m',
+    shortDescription: 'Borne WiFi 6 plafonnier AX3000 100mW — 64 utilisateurs',
+    description: 'Borne WiFi 6 plafonnier double bande AX3000 100mW pour 64 utilisateurs. Technologie WiFi 6 dernière génération pour les espaces modernes avec une densité d\'appareils croissante.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 17000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image35.png',
+    features: ['MTK Chipset, 128MB DDR2, 16MB Flash', '100mW haute puissance', '802.11AX WiFi 6, 2.4G & 5.8G 3000Mbps', 'MIMO 2×2+2×2, 4×3dBi antenne intégrée', '1×GE WAN + 1×GE LAN, jusqu\'à 64 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 630,
+  },
+  {
+    name: 'MS3000G',
+    slug: 'ms3000g',
+    shortDescription: 'Borne WiFi 6 plafonnier AX3000 2.5G 100mW — 128 utilisateurs',
+    description: 'Borne WiFi 6 plafonnier double bande AX3000 avec uplink 2.5G 100mW pour 128 utilisateurs. Haute densité pour les grandes salles, restaurants, hôtels et centres de conférence.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 21000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image36.png',
+    features: ['MTK Chipset, 256MB DDR2, 16MB Flash', '100mW haute puissance', '802.11AX WiFi 6, 2.4G & 5.8G 3000Mbps', 'MIMO 2×2+2×2, 4×3dBi antenne intégrée', '1×2.5G WAN + 1×GE LAN, jusqu\'à 128 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 640,
+  },
+  {
+    name: 'MS5000G',
+    slug: 'ms5000g',
+    shortDescription: 'Borne WiFi 7 plafonnier 5.04Gbps 2.5G 100mW — 128 utilisateurs',
+    description: 'Borne WiFi 7 plafonnier double bande 5.04Gbps avec uplink 2.5G 100mW pour 128 utilisateurs. Dernière génération WiFi 7 pour les environnements à très forte densité d\'appareils modernes.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 39000,
+    priceUnit: 'unique',
+    speed: '5040 Mbps',
+    imageUrl: '/products/image36.png',
+    features: ['MTK Chipset, 256MB DDR2, 64MB Flash', '100mW haute puissance', '802.11BE WiFi 7, 2.4G & 5.8G 5.04Gbps', 'MIMO 2×2+3×3, 5×3dBi antenne intégrée', '1×2.5G WAN + 1×GE LAN, jusqu\'à 128 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 650,
+  },
+  {
+    name: 'XD1200K',
+    slug: 'xd1200k',
+    shortDescription: 'Borne WiFi plafonnier AC1200 200mW haute puissance — 32 utilisateurs',
+    description: 'Borne WiFi plafonnier double bande AC1200 haute puissance 200mW pour 32 utilisateurs. La puissance accrue garantit une meilleure portée pour les grands espaces comme les showrooms ou salles polyvalentes.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 15000,
+    priceUnit: 'unique',
+    speed: '1200 Mbps',
+    imageUrl: '/products/image37.png',
+    features: ['RTL Chipset, 64MB DDR2, 16MB Flash', '200mW haute puissance', 'Wave2 MIMO 2×2, 4×5dBi antenne intégrée', '1×GE WAN + 1×GE LAN', 'Jusqu\'à 32 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 660,
+  },
+  {
+    name: 'XD3000K',
+    slug: 'xd3000k',
+    shortDescription: 'Borne WiFi 6 plafonnier AX3000 200mW — 128 utilisateurs',
+    description: 'Borne WiFi 6 plafonnier double bande AX3000 200mW haute puissance pour 128 utilisateurs. Idéale pour les hôtels, centres commerciaux et établissements scolaires avec une grande couverture.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 21000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image38.png',
+    features: ['MTK Chipset, 256MB DDR2, 16MB Flash', '200mW haute puissance', '802.11AX WiFi 6, 2.4G & 5.8G 3000Mbps', 'MIMO 2×2+2×2, 4×5dBi antenne intégrée', '1×GE WAN + 1×GE LAN, jusqu\'à 128 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 670,
+  },
+  {
+    name: 'XD3000G',
+    slug: 'xd3000g',
+    shortDescription: 'Borne WiFi 6 plafonnier AX3000 2.5G 200mW+ — 128 utilisateurs',
+    description: 'Borne WiFi 6 plafonnier double bande AX3000 avec uplink 2.5G et puissance 200mW+ pour 128 utilisateurs. La version Gigabit 2.5G du XD3000K pour les réseaux d\'entreprise haute performance.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 27000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image38.png',
+    features: ['MTK Chipset, 256MB DDR2, 16MB Flash', '200mW+ haute puissance', '802.11AX WiFi 6, 2.4G & 5.8G 3000Mbps', 'MIMO 2×2+2×2, 4×5dBi antenne intégrée', '1×2.5G WAN + 1×GE LAN, jusqu\'à 128 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 680,
+  },
+  {
+    name: 'XD3000E',
+    slug: 'xd3000e',
+    shortDescription: 'Borne WiFi 6E plafonnier triband 8.2Gbps 200mW — 256 utilisateurs',
+    description: 'Borne WiFi 6E plafonnier triband 8.2Gbps 200mW Qualcomm pour 256 utilisateurs. Triple bande 2.4G + 5.8G + 6GHz pour une capacité maximale dans les environnements à très haute densité.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 90000,
+    priceUnit: 'unique',
+    speed: '8200 Mbps',
+    imageUrl: '/products/image37.png',
+    features: ['Qualcomm Chipset, 1024MB DDR2, 128MB Flash', '200mW haute puissance', '802.11AX WiFi 6E, 2.4G & 5.8G & 6GHz 8.2Gbps', 'MIMO 2×2+4×4+2×2, 6×5dBi antenne intégrée', '1×2.5G WAN + 1×GE LAN, jusqu\'à 256 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 690,
+  },
+  {
+    name: 'BE3600',
+    slug: 'be3600',
+    shortDescription: 'Borne WiFi 7 plafonnier 3.6Gbps 200mW — 200 utilisateurs',
+    description: 'Borne WiFi 7 plafonnier double bande 3.6Gbps 200mW MTK pour 200 utilisateurs. Deux ports 2.5G pour les réseaux d\'entreprise modernes avec la technologie WiFi 7 la plus récente.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 57000,
+    priceUnit: 'unique',
+    speed: '3600 Mbps',
+    imageUrl: '/products/image38.png',
+    features: ['MTK Chipset, 512MB DDR2, 128MB Flash', '200mW haute puissance', '802.11BE WiFi 7, 2.4G & 5.8G 3.6Gbps', 'MIMO 2×2+2×2, 4×5dBi antenne intégrée', '1×2.5G WAN + 1×2.5G LAN, jusqu\'à 200 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 700,
+  },
+  {
+    name: 'BE5000',
+    slug: 'be5000',
+    shortDescription: 'Borne WiFi 7 plafonnier 5Gbps 200mW Qualcomm — 200 utilisateurs',
+    description: 'Borne WiFi 7 plafonnier double bande 5Gbps 200mW Qualcomm pour 200 utilisateurs. Performances Qualcomm de référence pour les environnements denses : auditoriums, centres sportifs, grandes salles.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 87000,
+    priceUnit: 'unique',
+    speed: '5000 Mbps',
+    imageUrl: '/products/image39.png',
+    features: ['Qualcomm Chipset, 512MB DDR2, 128MB Flash', '200mW haute puissance', '802.11BE WiFi 7, 2.4G & 5.8G 5Gbps', 'MIMO 2×2+2×2, 4×5dBi antenne intégrée', '1×2.5G WAN + 1×GE LAN, jusqu\'à 200 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 710,
+  },
+  {
+    name: 'BE19000',
+    slug: 'be19000',
+    shortDescription: 'Borne WiFi 7 plafonnier triband 19Gbps 200mW — 640 utilisateurs',
+    description: 'Borne WiFi 7 plafonnier triband 19Gbps 200mW Qualcomm pour 640 utilisateurs avec port SFP 10G. Le summum absolu des bornes WiFi intérieures pour les stades, aéroports et grandes infrastructures.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 300000,
+    priceUnit: 'unique',
+    speed: '19000 Mbps',
+    imageUrl: '/products/image38.png',
+    features: ['Qualcomm Chipset, 1024MB DDR2, 128MB Flash', '200mW haute puissance', '802.11BE WiFi 7, 2.4G & 5.8G & 6G 19Gbps', 'MIMO 4×4+4×4+4×4, 12×5dBi antenne intégrée', '1×10G SFP + 1×10G WAN + 1×GE LAN, jusqu\'à 640 utilisateurs'],
+    highlighted: false,
+    published: true,
+    position: 720,
+  },
+
+  // ── Outdoor Access Point ──────────────────────────────────────────────────────
+
+  {
+    name: 'N595',
+    slug: 'n595',
+    shortDescription: 'Borne WiFi outdoor omnidirectionnelle 1200Mbps IP67 — 50 utilisateurs',
+    description: 'Borne WiFi outdoor AC1200 360° IP67 pour 50 utilisateurs avec couverture jusqu\'à 100m. Parfaite pour équiper les cours, marchés, jardins ou zones d\'accueil en plein air.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 15000,
+    priceUnit: 'unique',
+    speed: '1200 Mbps',
+    imageUrl: '/products/image40.png',
+    features: ['MTK Chipset, 64M RAM, 8MB Flash', '802.11ac, 2.4GHz 300Mbps + 5.8GHz 887Mbps', '1×FE WAN + 1×FE LAN', 'Antenne détachable 1×5dBi 2.4G + 1×5dBi 5.8G', 'Couverture 360°, portée 100m, IP67'],
+    highlighted: false,
+    published: true,
+    position: 800,
+  },
+  {
+    name: 'N600',
+    slug: 'n600',
+    shortDescription: 'Borne WiFi 6 outdoor omnidirectionnelle 3000Mbps IP67 — 150 utilisateurs',
+    description: 'Borne WiFi 6 outdoor AX3000 360° IP67 Qualcomm pour 150 utilisateurs avec couverture jusqu\'à 500m. Idéale pour les villages, quartiers et zones communautaires à connecter en plein air.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 39000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image50.jpeg',
+    features: ['Qualcomm Chipset, 256MB RAM, 128MB Flash', '802.11ax, 2.4GHz 574Mbps + 5.8GHz 2402Mbps', '1×GE WAN + 1×GE LAN', 'MIMO 2×2+2×2, 2×6dBi antenne interne', 'Couverture 360°, portée 500m, IP67'],
+    highlighted: true,
+    published: true,
+    position: 810,
+  },
+  {
+    name: 'N600S',
+    slug: 'n600s',
+    shortDescription: 'Borne WiFi 6 outdoor sectorielle 3000Mbps IP67 + SFP — 150 utilisateurs',
+    description: 'Borne WiFi 6 outdoor AX3000 120° IP67 avec port SFP pour 150 utilisateurs et couverture jusqu\'à 500m. Version sectorielle avec fibre SFP pour les infrastructures réseau avancées.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 48000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image41.png',
+    features: ['MTK Chipset, 256MB RAM, 16MB Flash', '802.11ax, 2.4GHz 574Mbps + 5.8GHz 2402Mbps', '1×GE WAN + 1×SFP + 1×GE LAN', 'MIMO 2×2+2×2, 4×7dBi antenne interne', 'Couverture 120°, portée 500m, IP67'],
+    highlighted: false,
+    published: true,
+    position: 820,
+  },
+  {
+    name: 'N700',
+    slug: 'n700',
+    shortDescription: 'Borne WiFi 6 outdoor omnidirectionnelle 5400Mbps IP67 — 250 utilisateurs',
+    description: 'Borne WiFi 6 outdoor AX5400 360° IP67 Qualcomm pour 250 utilisateurs. La plus rapide des bornes outdoor de la gamme, pour les grandes zones à forte densité d\'utilisateurs.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 51000,
+    priceUnit: 'unique',
+    speed: '5400 Mbps',
+    imageUrl: '/products/image42.png',
+    features: ['Qualcomm Chipset, 512MB RAM, 128MB Flash', '802.11ax, 2.4GHz 574Mbps + 5.8GHz 4800Mbps', '1×2.5G WAN + 1×GE LAN', 'MIMO 2×2+2×2, 4×7dBi antenne interne', 'Couverture 360°, portée 100m, IP67'],
+    highlighted: false,
+    published: true,
+    position: 830,
+  },
+  {
+    name: 'N800',
+    slug: 'n800',
+    shortDescription: 'Borne WiFi 6 outdoor omnidirectionnelle 3000Mbps antennes 8dBi IP67 — 150 utilisateurs',
+    description: 'Borne WiFi 6 outdoor AX3000 360° IP67 Qualcomm avec antennes 8dBi détachables pour 150 utilisateurs et couverture jusqu\'à 150m. Antennes détachables pour une optimisation de la couverture sur site.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 59000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image43.jpeg',
+    features: ['Qualcomm Chipset, 512MB RAM, 128MB Flash', '802.11ax, 2.4GHz 574Mbps + 5.8GHz 2402Mbps', '1×2.5G WAN + 1×GE LAN', 'MIMO 2×2+2×2, 4×8dBi antenne détachable', 'Couverture 360°, portée 150m, IP67'],
+    highlighted: false,
+    published: true,
+    position: 840,
+  },
+  {
+    name: 'N800S',
+    slug: 'n800s',
+    shortDescription: 'Borne WiFi 6 outdoor 3000Mbps + SFP IP67 — 150 utilisateurs',
+    description: 'Borne WiFi 6 outdoor AX3000 IP67 avec port SFP fibre et antennes 8dBi détachables pour 150 utilisateurs. Version SFP du N800 pour les réseaux fibre déployés jusqu\'à la borne outdoor.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 65000,
+    priceUnit: 'unique',
+    speed: '3000 Mbps',
+    imageUrl: '/products/image43.jpeg',
+    features: ['Qualcomm Chipset, 512MB RAM, 128MB Flash', '802.11ax, 2.4GHz 574Mbps + 5.8GHz 2402Mbps', '1×SFP + 1×GE WAN + 1×GE LAN', 'MIMO 2×2+2×2, 4×8dBi antenne détachable', 'Couverture 360°, portée 150m, IP67'],
+    highlighted: false,
+    published: true,
+    position: 850,
+  },
+  {
+    name: 'N900',
+    slug: 'n900',
+    shortDescription: 'Borne WiFi 7 outdoor omnidirectionnelle 3600Mbps IP67 — 150 utilisateurs',
+    description: 'Borne WiFi 7 outdoor AX3600 360° IP67 Qualcomm pour 150 utilisateurs avec antennes 8dBi détachables et portée jusqu\'à 150m. Première génération WiFi 7 outdoor pour les réseaux ruraux et communautaires.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 77000,
+    priceUnit: 'unique',
+    speed: '3600 Mbps',
+    imageUrl: '/products/image43.jpeg',
+    features: ['Qualcomm Chipset, 512MB RAM, 128MB Flash', '802.11be WiFi 7, 2.4GHz 688Mbps + 5.8GHz 2811Mbps', '1×2.5G WAN + 1×GE LAN', 'MIMO 2×2+2×2, 4×8dBi antenne détachable', 'Couverture 360°, portée 150m, IP67'],
+    highlighted: false,
+    published: true,
+    position: 860,
+  },
+
+  // ── AP Controller ─────────────────────────────────────────────────────────────
+
+  {
+    name: 'MP1004',
+    slug: 'mp1004',
+    shortDescription: 'Contrôleur WiFi 4 ports PoE — 128 bornes',
+    description: 'Contrôleur de bornes WiFi avec 4 ports PoE 802.3af/at intégrés pour gérer jusqu\'à 128 bornes. Gestion centralisée du réseau WiFi avec alimentation des bornes via câble réseau, sans bloc secteur séparé.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 39000,
+    priceUnit: 'unique',
+    speed: null,
+    imageUrl: '/products/image44.png',
+    features: ['MTK Chipset, 512M RAM, 16MB Flash', '1×GE WAN + 4×GE LAN', '4 ports PoE 802.3af/at intégrés', 'Gestion jusqu\'à 128 bornes WiFi', 'Administration via interface web'],
+    highlighted: false,
+    published: true,
+    position: 900,
+  },
+  {
+    name: 'MP1004G2',
+    slug: 'mp1004g2',
+    shortDescription: 'Contrôleur WiFi 4 ports PoE 2.5G Gen2 — 128 bornes',
+    description: 'Contrôleur de bornes WiFi Gen2 avec 4 ports PoE et uplink 2.5G pour gérer jusqu\'à 128 bornes. Version améliorée du MP1004 avec 128MB Flash et connectique 2.5G pour les réseaux haute vitesse.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 48000,
+    priceUnit: 'unique',
+    speed: null,
+    imageUrl: '/products/image44.png',
+    features: ['MTK Chipset, 512M RAM, 128MB Flash', '1×2.5G WAN + 1×2.5G LAN + 3×GE LAN', '4 ports PoE 802.3af/at intégrés', 'Gestion jusqu\'à 128 bornes WiFi', 'Uplink 2.5G pour les réseaux haute vitesse'],
+    highlighted: false,
+    published: true,
+    position: 910,
+  },
+  {
+    name: 'MP1009',
+    slug: 'mp1009',
+    shortDescription: 'Contrôleur WiFi 8 ports PoE double WAN — 128 bornes',
+    description: 'Contrôleur de bornes WiFi avec 8 ports PoE 802.3af/at et double WAN pour gérer jusqu\'à 128 bornes. Double liaison WAN pour la redondance et 8 ports d\'alimentation PoE pour les déploiements moyens.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 53000,
+    priceUnit: 'unique',
+    speed: null,
+    imageUrl: '/products/image45.png',
+    features: ['MTK Chipset, 512M RAM, 16MB Flash', '2×GE WAN + 8×GE LAN', '8 ports PoE 802.3af/at intégrés', 'Gestion jusqu\'à 128 bornes WiFi', 'Double WAN pour redondance'],
+    highlighted: false,
+    published: true,
+    position: 920,
+  },
+  {
+    name: 'MP1009G2',
+    slug: 'mp1009g2',
+    shortDescription: 'Contrôleur WiFi 8 ports PoE 2.5G Gen2 — 128 bornes',
+    description: 'Contrôleur de bornes WiFi Gen2 avec 8 ports PoE et uplink 2.5G pour gérer jusqu\'à 128 bornes. Version haut de gamme avec 128MB Flash, connectique 2.5G et double WAN pour les réseaux d\'entreprise.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 59000,
+    priceUnit: 'unique',
+    speed: null,
+    imageUrl: '/products/image45.png',
+    features: ['MTK Chipset, 512M RAM, 128MB Flash', '1×2.5G WAN + 1×GE WAN + 1×2.5G LAN + 7×GE LAN', '8 ports PoE 802.3af/at intégrés', 'Gestion jusqu\'à 128 bornes WiFi', 'Uplink 2.5G et double WAN'],
+    highlighted: false,
+    published: true,
+    position: 930,
+  },
+  {
+    name: 'MAC100',
+    slug: 'mac100',
+    shortDescription: 'Contrôleur WiFi rack 11 pouces — 128 bornes',
+    description: 'Contrôleur WiFi compact format rack 11 pouces MTK MIPS pour gérer jusqu\'à 128 bornes WiFi. Idéal pour les baies réseau de taille réduite dans les hôtels, restaurants et PME.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 39000,
+    priceUnit: 'unique',
+    speed: null,
+    imageUrl: '/products/image46.png',
+    features: ['MTK Chipset MIPS, 512M RAM, 16MB Flash', '4×GE WAN/LAN + 1×GE LAN + 1×USB3.0 + 1×Console', 'Gestion jusqu\'à 128 bornes WiFi', 'Boîtier rack 11 pouces', 'Administration centralisée via web'],
+    highlighted: false,
+    published: true,
+    position: 940,
+  },
+  {
+    name: 'MAC200',
+    slug: 'mac200',
+    shortDescription: 'Contrôleur WiFi rack 1U — 256 bornes',
+    description: 'Contrôleur WiFi rack 1U MTK MIPS pour gérer jusqu\'à 256 bornes WiFi. Gestion centralisée de grande capacité pour les PME, campus universitaires, hôtels et centres commerciaux.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 71000,
+    priceUnit: 'unique',
+    speed: null,
+    imageUrl: '/products/image47.png',
+    features: ['MTK Chipset MIPS, 512M RAM, 16MB Flash', '4×GE WAN/LAN + 1×GE LAN + 1×USB3.0 + 1×Console', 'Gestion jusqu\'à 256 bornes WiFi', 'Boîtier rack 1U', 'Administration centralisée via web'],
+    highlighted: false,
+    published: true,
+    position: 950,
+  },
+  {
+    name: 'MAC400',
+    slug: 'mac400',
+    shortDescription: 'Contrôleur WiFi rack 1U Qualcomm ARM — 416 bornes',
+    description: 'Contrôleur WiFi rack 1U Qualcomm ARM pour gérer jusqu\'à 416 bornes WiFi avec 512M RAM et 128MB Flash. Solution professionnelle pour les grands campus, hôpitaux et sites industriels.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 75000,
+    priceUnit: 'unique',
+    speed: null,
+    imageUrl: '/products/image47.png',
+    features: ['Qualcomm Chipset ARM, 512M RAM, 128MB Flash', '1×2.5G WAN/LAN + 3×GE WAN/LAN + 1×GE LAN + 1×USB3.0 + 1×Console', 'Gestion jusqu\'à 416 bornes WiFi', 'Boîtier rack 1U', 'Connectique 2.5G'],
+    highlighted: false,
+    published: true,
+    position: 960,
+  },
+  {
+    name: 'MAC500',
+    slug: 'mac500',
+    shortDescription: 'Contrôleur WiFi rack 1U x86 — 512 bornes',
+    description: 'Contrôleur WiFi rack 1U architecture x86 avec 8G DDR4 pour gérer jusqu\'à 512 bornes WiFi. Architecture x86 haute performance avec 6 ports 2.5G et 2 ports SFP pour les grandes infrastructures.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 408000,
+    priceUnit: 'unique',
+    speed: null,
+    imageUrl: '/products/image48.png',
+    features: ['Architecture x86, 8G DDR4, 1G CF', '6×2.5G WAN/LAN + 2×SFP + 2×USB3.0 + 1×Console', 'Gestion jusqu\'à 512 bornes WiFi', 'Boîtier rack 1U', 'Haute disponibilité pour grandes infrastructures'],
+    highlighted: false,
+    published: true,
+    position: 970,
+  },
+  {
+    name: 'MAC1000',
+    slug: 'mac1000',
+    shortDescription: 'Contrôleur WiFi rack 1U x86 — 1024 bornes',
+    description: 'Contrôleur WiFi rack 1U architecture x86 avec 8G DDR4 pour gérer jusqu\'à 1024 bornes WiFi. La capacité maximale disponible pour les plus grandes infrastructures : stades, aéroports, campus universitaires.',
+    category: ProductCategory.EQUIPEMENT,
+    priceXof: 468000,
+    priceUnit: 'unique',
+    speed: null,
+    imageUrl: '/products/image48.png',
+    features: ['Architecture x86, 8G DDR4, 1G CF', '6×2.5G WAN/LAN + 2×SFP + 2×USB3.0 + 1×Console', 'Gestion jusqu\'à 1024 bornes WiFi', 'Boîtier rack 1U', 'Capacité maximale pour très grandes infrastructures'],
+    highlighted: false,
+    published: true,
+    position: 980,
+  },
 ];
-
-// ─── Parser WOBICOM ───────────────────────────────────────────────────────────
-
-/**
- * Structure du fichier WOBICOM-Catalog(2026Q1).xlsx :
- *   Col A : Type/sous-type WiFi (WIFi4, WIFi5, WiFi6…) ou header catégorie
- *   Col B : Modèle (WR300K, T500, G2000…)
- *   Col C : Image (vide)
- *   Col D : Key Features (bullet points séparés par \n)
- *   Col E : Prix (USD/PC)
- *   Col F : Infos emballage
- */
-
-function slugify(str: string): string {
-  return str
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
-/** Extrait les bullet points "● feature\n● ..." en tableau de chaînes. */
-function parseFeatures(raw: string | undefined): string[] {
-  if (!raw) return [];
-  return raw
-    .split('\n')
-    .map(line => line.replace(/^[●•\-\s]+/, '').trim())
-    .filter(Boolean);
-}
-
-/** Tente d'extraire une vitesse principale depuis les features (ex : "867Mbps", "3000M WiFi6"). */
-function extractSpeed(features: string[]): string | null {
-  for (const f of features) {
-    const m = f.match(/(\d[\d.,]*\s*(?:Gbps|Mbps|Kbps))/i);
-    if (m) return m[1];
-  }
-  return null;
-}
-
-/**
- * Mapping des catégories WOBICOM vers une description courte lisible.
- * Toutes les entrées WOBICOM sont catégorisées EQUIPEMENT.
- */
-function shortDescFromCategory(mainCat: string, subType: string | null): string {
-  const base = mainCat.replace('4G/5G Wireless Router', 'Routeur 4G/5G')
-    .replace('Outdoor PtP/PtMP Radio', 'Radio outdoor PtP/PtMP')
-    .replace('Indoor Access Point', 'Borne Wi-Fi intérieure')
-    .replace('Outdoor Access Point', 'Borne Wi-Fi extérieure')
-    .replace('AP Controller', 'Contrôleur de bornes Wi-Fi')
-    .replace('GPON/EPON/ONU', 'ONU GPON/EPON');
-  return subType ? `${base} ${subType}` : base;
-}
-
-function importFromExcel(filePath: string): ProductData[] {
-  console.log(`📂  Lecture : ${filePath}`);
-  const wb = XLSX.readFile(filePath);
-  const ws = wb.Sheets[wb.SheetNames[0]];
-  const rows = XLSX.utils.sheet_to_json<(string | number | null)[]>(ws, {
-    header: 1,
-    defval: null,
-  });
-
-  const products: ProductData[] = [];
-  let mainCategory = 'Équipement réseau';
-  let currentSubType: string | null = null;
-  let position = 1000; // Démarre après les services ISP
-
-  // Catégories WOBICOM reconnues comme headers de section (pas des produits)
-  const MAIN_CATEGORY_HEADERS = new Set([
-    'WiFi Router',
-    'GPON/EPON/ONU',
-    '4G/5G Wireless Router',
-    'Outdoor PtP/PtMP Radio',
-    'Indoor Access Point',
-    'Outdoor Access Point',
-    'AP Controller',
-    'Outdoor PTP Bridge',
-    'Outdoor PtMP Radio in Pairs',
-  ]);
-
-  for (const row of rows) {
-    const colA = row[0] != null ? String(row[0]).trim() : null;
-    const colB = row[1] != null ? String(row[1]).trim() : null; // Model
-    const colD = row[3] != null ? String(row[3]).trim() : null; // Features
-    const colE = row[4];                                         // Price USD
-
-    const hasModel = colB && colB.length > 0;
-    const hasPrice = typeof colE === 'number' && colE > 0;
-
-    // Header de catégorie principale (ex : "WiFi Router", "GPON/EPON/ONU")
-    if (colA && MAIN_CATEGORY_HEADERS.has(colA) && !hasModel) {
-      mainCategory = colA;
-      currentSubType = null;
-      continue;
-    }
-
-    // Ligne produit (a un modèle et un prix)
-    if (hasModel && hasPrice) {
-      // Si Col A est rempli sur une ligne produit → nouveau sous-type
-      if (colA && !MAIN_CATEGORY_HEADERS.has(colA)) {
-        currentSubType = colA;
-      }
-
-      const features = parseFeatures(colD ?? undefined);
-      const speed = extractSpeed(features);
-      const model = colB!;
-      const name = `WOBICOM ${model}`;
-
-      products.push({
-        name,
-        slug: slugify(name),
-        shortDescription: shortDescFromCategory(mainCategory, currentSubType),
-        description: features.slice(0, 3).join(' · ') || null,
-        category: ProductCategory.EQUIPEMENT,
-        priceXof: null,          // Prix wholesale USD — ne pas publier tel quel
-        priceUnit: 'unique',
-        speed,
-        features,
-        highlighted: false,
-        published: false,         // À valider manuellement avant publication
-        position: position++,
-      });
-    }
-  }
-
-  return products;
-}
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const useExcel = process.env.SEED_FROM_EXCEL === 'true';
-  const excelPath = path.resolve(
-    __dirname,
-    // Chemin par défaut — peut être remplacé via env
-    process.env.EXCEL_PATH ?? 'WOBICOM-Catalog.xlsx',
-  );
+  console.log('🗑️   Suppression des anciens produits...');
+  await prisma.product.deleteMany({});
+  console.log('✅  Table vidée.\n');
 
-  let products: ProductData[] = STATIC_PRODUCTS;
+  console.log(`🌱  Insertion de ${PRODUCTS.length} produits...\n`);
 
-  if (useExcel) {
-    try {
-      const imported = importFromExcel(excelPath);
-      console.log(`✅  ${imported.length} produits lus depuis Excel.`);
-      products = [...STATIC_PRODUCTS, ...imported];
-    } catch (err) {
-      console.error(`❌  Impossible de lire : ${excelPath}`);
-      console.error(err);
-      process.exit(1);
-    }
-  } else {
-    console.log(`ℹ️   Données statiques (${products.length} produits ISP).`);
-    console.log(`    Import WOBICOM : SEED_FROM_EXCEL=true EXCEL_PATH=<chemin> pnpm db:seed`);
+  let count = 0;
+  for (const data of PRODUCTS) {
+    await prisma.product.create({ data: data as Parameters<typeof prisma.product.create>[0]['data'] });
+    count++;
+    console.log(`  +  [${data.category}] ${data.name}`);
   }
 
-  console.log('\n🌱  Insertion des produits...\n');
-
-  let created = 0;
-  let updated = 0;
-
-  for (const data of products) {
-    const slug = data.slug as string;
-    const existing = await prisma.product.findUnique({ where: { slug } });
-
-    if (existing) {
-      await prisma.product.update({ where: { slug }, data });
-      updated++;
-      console.log(`  ↻  [${data.category}] ${data.name}`);
-    } else {
-      await prisma.product.create({ data: data as Parameters<typeof prisma.product.create>[0]['data'] });
-      created++;
-      console.log(`  +  [${data.category}] ${data.name}`);
-    }
-  }
-
-  console.log(`\n✅  Terminé — ${created} créés, ${updated} mis à jour.\n`);
+  console.log(`\n✅  Terminé — ${count} produits créés.\n`);
 }
 
 main()

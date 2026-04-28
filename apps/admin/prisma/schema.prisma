@@ -46,6 +46,7 @@ model Product {
   priceUnit        String?         // "mois" | "an" | "unique"
   speed            String?         // Ex : "20 Mbps", "50 Mbps"
   features         String[]        // Liste des avantages/caractéristiques
+  imageUrl         String?         // URL relative de l'image produit (ex : /products/image4.png)
   highlighted      Boolean         @default(false) // Badge "Populaire"
   published        Boolean         @default(false) // Visible sur le site public
   position         Int             @default(0)     // Ordre d'affichage

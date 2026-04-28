@@ -30,12 +30,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
                     {/* Nav desktop */}
                     <div className="hidden md:flex items-center gap-1 flex-1 ml-4">
-                        <ActiveNavLink href="/admin"           label="Transactions" />
-                        <ActiveNavLink href="/admin/catalogue" label="Catalogue" />
-                        {/* Clients désactivé — page non implémentée */}
-                        <span className="rounded-xl px-3.5 py-2 text-sm font-semibold text-gray-300 dark:text-slate-600 cursor-not-allowed select-none">
-                            Clients
-                        </span>
+                        <ActiveNavLink href="/admin"            label="Transactions" />
+                        <ActiveNavLink href="/admin/catalogue"  label="Catalogue" />
+                        <ActiveNavLink href="/admin/clients"    label="Clients" />
+                        <ActiveNavLink href="/admin/villages"   label="Villages" />
                     </div>
 
                     {/* Droite : toggle + logout desktop + hamburger mobile */}
