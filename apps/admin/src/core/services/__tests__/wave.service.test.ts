@@ -5,7 +5,8 @@ import { createHmac } from 'crypto';
 // ── createWaveCheckoutSession ────────────────────────────────────────────────
 
 describe('createWaveCheckoutSession', () => {
-    const API_KEY = 'test-wave-api-key';
+    const API_KEY        = 'test-wave-api-key';
+    const SIGNING_SECRET = 'test-wave-signing-secret';
     const PARAMS = {
         amount:      10000,
         internalRef: 'ref-abc',
@@ -14,7 +15,8 @@ describe('createWaveCheckoutSession', () => {
     };
 
     beforeEach(() => {
-        vi.stubEnv('WAVE_API_KEY', API_KEY);
+        vi.stubEnv('WAVE_API_KEY',        API_KEY);
+        vi.stubEnv('WAVE_SIGNING_SECRET', SIGNING_SECRET);
     });
 
     afterEach(() => {
@@ -50,6 +52,19 @@ describe('createWaveCheckoutSession', () => {
         expect(options.method).toBe('POST');
         expect(options.headers['Authorization']).toBe(`Bearer ${API_KEY}`);
 
+        // Wave-Signature header must be present and well-formed
+        const waveSignatureHeader = options.headers['Wave-Signature'];
+        expect(waveSignatureHeader).toMatch(/^t=\d+,v1=[0-9a-f]{64}$/);
+
+        // Verify the signature is computed from the body that was actually sent
+        const [tPart, v1Part] = waveSignatureHeader.split(',');
+        const timestamp = tPart.slice(2);          // strip "t="
+        const signature = v1Part.slice(3);         // strip "v1="
+        const expected  = createHmac('sha256', SIGNING_SECRET)
+            .update(timestamp + options.body)
+            .digest('hex');
+        expect(signature).toBe(expected);
+
         const body = JSON.parse(options.body);
         expect(body.amount).toBe('10000');          // Wave attend une chaîne
         expect(body.currency).toBe('XOF');
@@ -60,10 +75,20 @@ describe('createWaveCheckoutSession', () => {
 
     it('returns failure when WAVE_API_KEY is missing', async () => {
         vi.unstubAllEnvs();
+        vi.stubEnv('WAVE_SIGNING_SECRET', SIGNING_SECRET);
         const result = await createWaveCheckoutSession(PARAMS);
         expect(result.success).toBe(false);
         if (result.success) return;
         expect(result.message).toContain('WAVE_API_KEY');
+    });
+
+    it('returns failure when WAVE_SIGNING_SECRET is missing', async () => {
+        vi.unstubAllEnvs();
+        vi.stubEnv('WAVE_API_KEY', API_KEY);
+        const result = await createWaveCheckoutSession(PARAMS);
+        expect(result.success).toBe(false);
+        if (result.success) return;
+        expect(result.message).toContain('WAVE_SIGNING_SECRET');
     });
 
     it('returns failure when Wave API returns a non-ok status', async () => {
