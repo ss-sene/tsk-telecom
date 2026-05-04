@@ -20,14 +20,32 @@ const PLANS = [
 ];
 
 const PROVIDERS: { id: PaymentProvider; label: string }[] = [
-    { id: 'WAVE',         label: 'Wave'         },
-    { id: 'ORANGE_MONEY', label: 'Orange Money' },
+    { id: 'WAVE', label: 'Wave' },
+    // { id: 'ORANGE_MONEY', label: 'Orange Money' }, // temporairement masqué
 ];
 
 const PROVIDER_MESSAGES: Record<PaymentProvider, string> = {
     WAVE:         'Vous allez être redirigé vers l\'application Wave pour confirmer le paiement.',
     ORANGE_MONEY: 'Vous allez être redirigé vers la page de paiement Orange Money.',
 };
+
+function WaveLogo({ className = 'h-5 w-5' }: { className?: string }) {
+    return (
+        <svg className={className} viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <rect width="32" height="32" rx="8" fill="#1BA8E0" />
+            <path d="M6 22 L10 10 L14 18 L18 10 L22 18 L26 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+    );
+}
+
+function OrangeMoneyLogo({ className = 'h-5 w-5' }: { className?: string }) {
+    return (
+        <svg className={className} viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <rect width="32" height="32" rx="8" fill="#FF6600" />
+            <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" fill="white" fontSize="10" fontWeight="800" fontFamily="sans-serif">OM</text>
+        </svg>
+    );
+}
 
 function InputField({
     id, label, error, children, hint,
@@ -36,11 +54,11 @@ function InputField({
 }) {
     return (
         <div>
-            <label htmlFor={id} className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-400">
-                {label} {hint && <span className="font-normal normal-case tracking-normal text-slate-500">{hint}</span>}
+            <label htmlFor={id} className="mb-1.5 block text-sm font-semibold text-text-secondary">
+                {label} {hint && <span className="font-normal text-text-faint">{hint}</span>}
             </label>
             {children}
-            {error && <p role="alert" className="mt-1.5 text-xs font-semibold text-red-400">{error}</p>}
+            {error && <p role="alert" className="mt-1.5 text-xs font-semibold text-red-600">{error}</p>}
         </div>
     );
 }
@@ -96,8 +114,8 @@ export function CheckoutFormClient({ villages }: Props) {
             <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4">
                 <div className="h-14 w-14 animate-spin rounded-full border-[3px] border-brand border-t-transparent" />
                 <div className="text-center">
-                    <p className="text-lg font-extrabold text-slate-100">Redirection vers {providerLabel}…</p>
-                    <p className="mt-1.5 text-sm text-slate-400 max-w-xs mx-auto">{PROVIDER_MESSAGES[state.provider]}</p>
+                    <p className="text-lg font-extrabold text-text-base">Redirection vers {providerLabel}…</p>
+                    <p className="mt-1.5 text-sm text-text-muted max-w-xs mx-auto">{PROVIDER_MESSAGES[state.provider]}</p>
                 </div>
             </div>
         );
@@ -107,18 +125,18 @@ export function CheckoutFormClient({ villages }: Props) {
     if (state.status === 'error') {
         return (
             <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-900/20 ring-1 ring-red-800/40">
-                    <svg className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/15 ring-1 ring-red-500/25">
+                    <svg className="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </div>
                 <div>
-                    <h2 className="text-xl font-extrabold text-slate-100 mb-1.5">Une erreur est survenue</h2>
-                    <p className="text-sm text-slate-400 max-w-sm mx-auto">{state.message}</p>
+                    <h2 className="text-xl font-extrabold text-text-base mb-1.5">Une erreur est survenue</h2>
+                    <p className="text-sm text-text-muted max-w-sm mx-auto">{state.message}</p>
                 </div>
                 <button
                     onClick={reset}
-                    className="flex h-11 items-center justify-center gap-2 rounded-xl bg-brand px-8 text-sm font-bold text-white hover:bg-brand-hover transition-colors"
+                    className="flex h-11 items-center justify-center gap-2 rounded-xl bg-brand px-8 text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors"
                 >
                     Réessayer
                 </button>
@@ -131,8 +149,8 @@ export function CheckoutFormClient({ villages }: Props) {
         <div className="mx-auto max-w-5xl">
 
             <div className="mb-8 text-center sm:text-left">
-                <h1 className="text-2xl font-extrabold text-slate-100 sm:text-3xl">Souscrire à Internet TDK</h1>
-                <p className="mt-1 text-sm text-slate-400">Remplissez le formulaire ci-dessous pour finaliser votre abonnement.</p>
+                <h1 className="text-2xl font-extrabold text-text-base sm:text-3xl">Souscrire à Internet TDK</h1>
+                <p className="mt-1 text-sm text-text-muted">Remplissez le formulaire ci-dessous pour finaliser votre abonnement.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 lg:gap-10 items-start">
@@ -148,7 +166,7 @@ export function CheckoutFormClient({ villages }: Props) {
                                 value={firstName}
                                 onChange={e => setFirstName(e.target.value)}
                                 placeholder="Mamadou"
-                                className="block h-11 w-full rounded-xl border-0 bg-slate-800 px-4 text-sm text-slate-100 ring-1 ring-inset ring-slate-600 placeholder:text-slate-500 focus:ring-2 focus:ring-brand outline-none"
+                                className="block h-11 w-full rounded-xl border border-border-default bg-surface-card px-4 text-sm text-text-base placeholder:text-text-faint focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition"
                             />
                         </InputField>
                         <InputField id="lastName" label="Nom" error={errors.lastName}>
@@ -158,14 +176,14 @@ export function CheckoutFormClient({ villages }: Props) {
                                 value={lastName}
                                 onChange={e => setLastName(e.target.value)}
                                 placeholder="Diallo"
-                                className="block h-11 w-full rounded-xl border-0 bg-slate-800 px-4 text-sm text-slate-100 ring-1 ring-inset ring-slate-600 placeholder:text-slate-500 focus:ring-2 focus:ring-brand outline-none"
+                                className="block h-11 w-full rounded-xl border border-border-default bg-surface-card px-4 text-sm text-text-base placeholder:text-text-faint focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition"
                             />
                         </InputField>
                     </div>
 
                     <InputField id="phone" label="Numéro de téléphone" error={errors.phone}>
                         <div className="flex">
-                            <span className="inline-flex h-11 items-center rounded-l-xl bg-slate-700 px-3 text-sm font-bold text-slate-400 ring-1 ring-inset ring-slate-600">
+                            <span className="inline-flex h-11 items-center rounded-l-xl bg-surface-section px-3 text-sm font-bold text-text-muted border border-r-0 border-border-default">
                                 +221
                             </span>
                             <input
@@ -174,7 +192,8 @@ export function CheckoutFormClient({ villages }: Props) {
                                 value={phone}
                                 onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 9))}
                                 placeholder="77 123 45 67"
-                                className="block h-11 w-full rounded-r-xl border-0 bg-slate-800 px-4 text-sm text-slate-100 ring-1 ring-inset ring-slate-600 placeholder:text-slate-500 focus:ring-2 focus:ring-brand outline-none"
+                                pattern="[0-9]{9}"
+                                className="block h-11 w-full rounded-r-xl border border-border-default bg-surface-card px-4 text-sm text-text-base placeholder:text-text-faint focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition"
                             />
                         </div>
                     </InputField>
@@ -186,7 +205,7 @@ export function CheckoutFormClient({ villages }: Props) {
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             placeholder="mamadou@example.com"
-                            className="block h-11 w-full rounded-xl border-0 bg-slate-800 px-4 text-sm text-slate-100 ring-1 ring-inset ring-slate-600 placeholder:text-slate-500 focus:ring-2 focus:ring-brand outline-none"
+                            className="block h-11 w-full rounded-xl border border-border-default bg-surface-card px-4 text-sm text-text-base placeholder:text-text-faint focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition"
                         />
                     </InputField>
 
@@ -195,7 +214,7 @@ export function CheckoutFormClient({ villages }: Props) {
                             id="villageId"
                             value={villageId}
                             onChange={e => setVillageId(e.target.value)}
-                            className="block h-11 w-full rounded-xl border-0 bg-slate-800 px-4 text-sm text-slate-100 ring-1 ring-inset ring-slate-600 focus:ring-2 focus:ring-brand outline-none"
+                            className="block h-11 w-full rounded-xl border border-border-default bg-surface-card px-4 text-sm text-text-base focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition"
                         >
                             <option value="">Sélectionner une zone…</option>
                             {villages.map(v => (
@@ -213,14 +232,14 @@ export function CheckoutFormClient({ villages }: Props) {
                                 value={newVillageName}
                                 onChange={e => setNewVillageName(e.target.value)}
                                 placeholder="Ex: Quartier Liberté 6"
-                                className="block h-11 w-full rounded-xl border-0 bg-slate-800 px-4 text-sm text-slate-100 ring-1 ring-inset ring-slate-600 placeholder:text-slate-500 focus:ring-2 focus:ring-brand outline-none"
+                                className="block h-11 w-full rounded-xl border border-border-default bg-surface-card px-4 text-sm text-text-base placeholder:text-text-faint focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none transition"
                             />
                         </InputField>
                     )}
 
                     <div>
-                        <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">Moyen de paiement</p>
-                        <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Moyen de paiement">
+                        <p className="mb-2 text-sm font-semibold text-text-secondary">Moyen de paiement</p>
+                        <div className="grid grid-cols-1 gap-3" role="radiogroup" aria-label="Moyen de paiement">
                             {PROVIDERS.map(p => {
                                 const isSelected = provider === p.id;
                                 return (
@@ -232,36 +251,36 @@ export function CheckoutFormClient({ villages }: Props) {
                                         onClick={() => setProvider(p.id)}
                                         className={`flex items-center justify-center gap-2 h-12 rounded-xl border-2 font-bold text-sm transition-all ${
                                             isSelected
-                                                ? 'border-brand bg-brand/10 text-brand'
-                                                : 'border-slate-700 bg-slate-800 text-slate-400 hover:border-slate-600'
+                                                ? 'border-brand bg-brand/5 text-brand shadow-sm'
+                                                : 'border-border-default bg-surface-card text-text-muted hover:border-border-strong hover:bg-surface-raised'
                                         }`}
                                     >
-                                        {isSelected && (
-                                            <svg className="h-3.5 w-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
+                                        {p.id === 'WAVE' ? (
+                                            <WaveLogo className="h-5 w-5" />
+                                        ) : (
+                                            <OrangeMoneyLogo className="h-5 w-5" />
                                         )}
                                         {p.label}
                                     </button>
                                 );
                             })}
                         </div>
-                        {errors.provider && <p role="alert" className="mt-1.5 text-xs font-semibold text-red-400">{errors.provider}</p>}
+                        {errors.provider && <p role="alert" className="mt-1.5 text-xs font-semibold text-red-600">{errors.provider}</p>}
                     </div>
 
                     <button
                         type="submit"
                         disabled={state.status === 'loading'}
-                        className="flex h-14 w-full items-center justify-center gap-2.5 rounded-xl bg-brand text-sm font-bold text-white shadow-lg shadow-brand/20 transition-colors hover:bg-brand-hover disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="flex h-14 w-full items-center justify-center gap-2.5 rounded-xl bg-brand text-sm font-bold text-[#121A26] transition-colors hover:bg-brand-hover disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                         {state.status === 'loading' ? (
                             <>
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" aria-hidden="true" />
                                 Traitement en cours…
                             </>
                         ) : (
                             <>
-                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                                 </svg>
                                 Payer {selectedPlan.price.toLocaleString('fr-FR')} FCFA via {PROVIDERS.find(p => p.id === provider)?.label}
@@ -269,21 +288,21 @@ export function CheckoutFormClient({ villages }: Props) {
                         )}
                     </button>
 
-                    <div className="flex items-center justify-center gap-4 text-xs text-slate-500">
+                    <div className="flex items-center justify-center gap-4 text-xs text-text-faint">
                         <span className="flex items-center gap-1.5">
-                            <svg className="h-3.5 w-3.5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="h-3.5 w-3.5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                             </svg>
                             Transaction sécurisée
                         </span>
-                        <span className="text-slate-700">|</span>
+                        <span className="text-border-faint" aria-hidden="true">|</span>
                         <span>TDK Telecom</span>
                     </div>
                 </form>
 
                 {/* ── COLONNE DROITE : Récapitulatif ── */}
                 <div className="space-y-4 order-1 lg:order-2">
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Votre offre</h2>
+                    <h2 className="text-sm font-semibold text-text-muted">Votre offre</h2>
 
                     {PLANS.map(p => (
                         <button
@@ -292,27 +311,27 @@ export function CheckoutFormClient({ villages }: Props) {
                             onClick={() => setPlan(p.id)}
                             className={`w-full text-left rounded-2xl border-2 p-5 transition-all ${
                                 plan === p.id
-                                    ? 'border-brand bg-brand/10'
-                                    : 'border-slate-700 bg-slate-800 hover:border-slate-600'
+                                    ? 'border-brand bg-brand/5'
+                                    : 'border-border-default bg-surface-card hover:border-border-strong'
                             }`}
                         >
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className={`font-extrabold text-sm ${plan === p.id ? 'text-brand' : 'text-slate-100'}`}>
+                                    <p className={`font-extrabold text-sm ${plan === p.id ? 'text-brand' : 'text-text-base'}`}>
                                         {p.label}
                                     </p>
-                                    <p className="text-xs text-slate-500 mt-0.5">{p.speed}</p>
+                                    <p className="text-xs text-text-faint mt-0.5">{p.speed}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-extrabold text-base text-slate-100">
+                                    <p className="font-extrabold text-base text-text-base">
                                         {p.price.toLocaleString('fr-FR')} <span className="text-xs font-bold">FCFA</span>
                                     </p>
-                                    <p className="text-xs text-slate-500">/ mois</p>
+                                    <p className="text-xs text-text-faint">/ mois</p>
                                 </div>
                             </div>
                             {plan === p.id && (
                                 <div className="mt-2.5 flex items-center gap-1.5 text-xs font-bold text-brand">
-                                    <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                     </svg>
                                     Sélectionné
@@ -321,43 +340,43 @@ export function CheckoutFormClient({ villages }: Props) {
                         </button>
                     ))}
 
-                    <div className="rounded-2xl bg-slate-800 p-5 ring-1 ring-slate-700">
-                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Récapitulatif</p>
+                    <div className="rounded-2xl bg-surface-section p-5 ring-1 ring-border-default">
+                        <p className="text-xs font-bold uppercase tracking-wider text-text-muted mb-3">Récapitulatif</p>
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                                <span className="text-slate-400">Offre</span>
-                                <span className="font-bold text-slate-100">{selectedPlan.label}</span>
+                                <span className="text-text-muted">Offre</span>
+                                <span className="font-bold text-text-base">{selectedPlan.label}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-slate-400">Débit</span>
-                                <span className="font-bold text-slate-100">{selectedPlan.speed}</span>
+                                <span className="text-text-muted">Débit</span>
+                                <span className="font-bold text-text-base">{selectedPlan.speed}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-slate-400">Via</span>
-                                <span className="font-bold text-slate-100">{PROVIDERS.find(p => p.id === provider)?.label}</span>
+                                <span className="text-text-muted">Via</span>
+                                <span className="font-bold text-text-base">{PROVIDERS.find(p => p.id === provider)?.label}</span>
                             </div>
-                            <div className="border-t border-slate-700 pt-2.5 mt-1 flex justify-between items-baseline">
-                                <span className="text-slate-400 font-semibold">Total</span>
-                                <span className="font-extrabold text-xl text-slate-100">{selectedPlan.price.toLocaleString('fr-FR')} <span className="text-sm">FCFA</span></span>
+                            <div className="border-t border-border-default pt-2.5 mt-1 flex justify-between items-baseline">
+                                <span className="text-text-muted font-semibold">Total</span>
+                                <span className="font-extrabold text-xl text-text-base">{selectedPlan.price.toLocaleString('fr-FR')} <span className="text-sm">FCFA</span></span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="rounded-2xl bg-slate-800 px-5 py-4 ring-1 ring-slate-700 space-y-2.5">
-                        <div className="flex items-center gap-2.5 text-xs text-slate-400">
-                            <svg className="h-4 w-4 flex-none text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="rounded-2xl bg-surface-section px-5 py-4 ring-1 ring-border-default space-y-2.5">
+                        <div className="flex items-center gap-2.5 text-xs text-text-muted">
+                            <svg className="h-4 w-4 flex-none text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                             </svg>
                             <span>Paiement 100% sécurisé</span>
                         </div>
-                        <div className="flex items-center gap-2.5 text-xs text-slate-400">
-                            <svg className="h-4 w-4 flex-none text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="flex items-center gap-2.5 text-xs text-text-muted">
+                            <svg className="h-4 w-4 flex-none text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                             <span>Aucun frais caché</span>
                         </div>
-                        <div className="flex items-center gap-2.5 text-xs text-slate-400">
-                            <svg className="h-4 w-4 flex-none text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="flex items-center gap-2.5 text-xs text-text-muted">
+                            <svg className="h-4 w-4 flex-none text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             <span>Support local disponible</span>

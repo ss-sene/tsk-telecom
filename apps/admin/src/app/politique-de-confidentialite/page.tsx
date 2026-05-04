@@ -5,17 +5,19 @@ import { PublicFooter } from '@/app/PublicFooter';
 import { COMPANY } from '@/lib/company';
 
 export const metadata: Metadata = {
-    title: 'Politique de confidentialité — TDK Telecom',
+    title:       'Politique de confidentialité',
     description: 'Politique de protection des données personnelles de TOUBA DAROU KHOUDOSS TELECOM.',
+    alternates:  { canonical: '/politique-de-confidentialite' },
+    robots:      { index: false, follow: false },
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <section className="mb-10">
-            <h2 className="text-lg font-extrabold text-slate-100 mb-4 pb-2 border-b border-slate-800">
+            <h2 className="text-lg font-extrabold text-text-base mb-4 pb-2 border-b border-border-default">
                 {title}
             </h2>
-            <div className="space-y-3 text-sm text-slate-400 leading-relaxed">
+            <div className="space-y-3 text-sm text-text-secondary leading-relaxed">
                 {children}
             </div>
         </section>
@@ -24,16 +26,16 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export default function PolitiqueConfidentialitePage() {
     return (
-        <div className="min-h-screen bg-slate-900 text-slate-100">
+        <div className="min-h-screen bg-surface-page text-text-base">
             <PublicHeader />
 
             <main className="mx-auto max-w-3xl px-5 py-16 sm:py-20">
                 <div className="mb-12">
                     <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Légal</p>
-                    <h1 className="text-3xl font-black tracking-[-0.03em] text-slate-50 sm:text-4xl mb-4">
+                    <h1 className="text-3xl font-black tracking-[-0.03em] text-text-base sm:text-4xl mb-4">
                         Politique de confidentialité
                     </h1>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-text-muted">
                         Conformément à la loi sénégalaise n° 2008-12 du 25 janvier 2008.
                         Dernière mise à jour : avril 2026.
                     </p>
@@ -43,7 +45,7 @@ export default function PolitiqueConfidentialitePage() {
                     <p>
                         Le responsable du traitement des données à caractère personnel est :
                     </p>
-                    <p><span className="font-semibold text-slate-300">TOUBA DAROU KHOUDOSS TELECOM</span></p>
+                    <p><span className="font-semibold text-text-secondary">TOUBA DAROU KHOUDOSS TELECOM</span></p>
                     <p>Touba Darou Khoudoss, Sénégal</p>
                     <p>
                         Email :{' '}
@@ -96,10 +98,10 @@ export default function PolitiqueConfidentialitePage() {
                         Conformément à la loi sénégalaise n° 2008-12, vous disposez des droits suivants :
                     </p>
                     <ul className="list-disc list-inside space-y-1 pl-2">
-                        <li><span className="text-slate-300 font-medium">Droit d&apos;accès</span> : obtenir une copie de vos données</li>
-                        <li><span className="text-slate-300 font-medium">Droit de rectification</span> : corriger vos données inexactes</li>
-                        <li><span className="text-slate-300 font-medium">Droit à l&apos;effacement</span> : demander la suppression de vos données</li>
-                        <li><span className="text-slate-300 font-medium">Droit d&apos;opposition</span> : vous opposer à certains traitements</li>
+                        <li><span className="text-text-secondary font-medium">Droit d&apos;accès</span> : obtenir une copie de vos données</li>
+                        <li><span className="text-text-secondary font-medium">Droit de rectification</span> : corriger vos données inexactes</li>
+                        <li><span className="text-text-secondary font-medium">Droit à l&apos;effacement</span> : demander la suppression de vos données</li>
+                        <li><span className="text-text-secondary font-medium">Droit d&apos;opposition</span> : vous opposer à certains traitements</li>
                     </ul>
                     <p>
                         Pour exercer ces droits, contactez-nous :{' '}
@@ -123,17 +125,17 @@ export default function PolitiqueConfidentialitePage() {
                     </p>
                 </Section>
 
-                <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                <div className="mt-12 pt-8 border-t border-border-default flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-slate-100 transition-colors"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-text-muted hover:text-text-base transition-colors"
                     >
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                         Retour à l&apos;accueil
                     </Link>
-                    <Link href="/mentions-legales" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
+                    <Link href="/mentions-legales" className="text-sm text-text-faint hover:text-text-secondary transition-colors">
                         Mentions légales →
                     </Link>
                 </div>

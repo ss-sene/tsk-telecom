@@ -3,7 +3,7 @@
 
 import { prisma }                          from '@/core/db/prisma';
 import { InitiatePaymentSchema }           from '@/core/validators/payment.schema';
-import { createWavePayLink }               from '@/core/services/wave.service';
+import { createWaveCheckoutSession }        from '@/core/services/wave.service';
 import { createOrangeMoneyPayment }        from '@/core/services/orange-money.service';
 import { TDK_PLANS_ARRAY }                 from '@tdk/config';
 import '@/lib/env'; // validates required env vars at startup
@@ -81,9 +81,11 @@ export async function initiatePayment(payload: unknown) {
 
         // --- 5. Appel selon l'opérateur ---
         if (dto.provider === 'WAVE') {
-            const result = createWavePayLink({
+            const result = await createWaveCheckoutSession({
                 amount:      dto.amount,
                 internalRef: payment.internalRef,
+                successUrl:  successUrl,
+                errorUrl:    cancelUrl,
             });
 
             if (!result.success) {
@@ -94,9 +96,14 @@ export async function initiatePayment(payload: unknown) {
                 return { success: false, error: result.message };
             }
 
+            await prisma.payment.update({
+                where: { id: payment.id },
+                data:  { providerRef: result.sessionId },
+            });
+
             return {
                 success:     true,
-                checkoutUrl: result.payUrl,
+                checkoutUrl: result.waveUrl,
                 internalRef: payment.internalRef,
                 provider:    'WAVE' as const,
             };

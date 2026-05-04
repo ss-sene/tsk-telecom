@@ -1,46 +1,102 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { createWavePayLink, verifyWaveWebhookSignature } from '../wave.service';
+import { createWaveCheckoutSession, verifyWaveWebhookSignature } from '../wave.service';
 import { createHmac } from 'crypto';
 
-describe('createWavePayLink', () => {
+// ── createWaveCheckoutSession ────────────────────────────────────────────────
+
+describe('createWaveCheckoutSession', () => {
+    const API_KEY = 'test-wave-api-key';
+    const PARAMS = {
+        amount:      10000,
+        internalRef: 'ref-abc',
+        successUrl:  'https://tdk.sn/payment/success?ref=ref-abc',
+        errorUrl:    'https://tdk.sn/checkout?cancelled=1',
+    };
+
     beforeEach(() => {
-        vi.stubEnv('WAVE_MERCHANT_ID', 'tdk-telecom');
+        vi.stubEnv('WAVE_API_KEY', API_KEY);
     });
+
     afterEach(() => {
         vi.unstubAllEnvs();
+        vi.restoreAllMocks();
     });
 
-    it('returns a valid Wave pay URL when WAVE_MERCHANT_ID is set', () => {
-        const result = createWavePayLink({ amount: 10000, internalRef: 'ref-abc' });
+    it('returns waveUrl and sessionId on success', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+            ok:   true,
+            json: async () => ({ wave_launch_url: 'https://pay.wave.com/qr/abc', id: 'cos_abc123' }),
+        }));
+
+        const result = await createWaveCheckoutSession(PARAMS);
+
         expect(result.success).toBe(true);
         if (!result.success) return;
-        expect(result.payUrl).toContain('pay.wave.com/m/tdk-telecom');
-        expect(result.payUrl).toContain('amount=10000');
+        expect(result.waveUrl).toBe('https://pay.wave.com/qr/abc');
+        expect(result.sessionId).toBe('cos_abc123');
     });
 
-    it('sets sessionId to internalRef', () => {
-        const result = createWavePayLink({ amount: 5000, internalRef: 'my-ref-123' });
-        expect(result.success).toBe(true);
-        if (!result.success) return;
-        expect(result.sessionId).toBe('my-ref-123');
+    it('sends the correct request to the Wave API', async () => {
+        const mockFetch = vi.fn().mockResolvedValue({
+            ok:   true,
+            json: async () => ({ wave_launch_url: 'https://pay.wave.com/qr/x', id: 'cos_xyz' }),
+        });
+        vi.stubGlobal('fetch', mockFetch);
+
+        await createWaveCheckoutSession(PARAMS);
+
+        const [url, options] = mockFetch.mock.calls[0] as [string, RequestInit & { body: string; headers: Record<string, string> }];
+        expect(url).toBe('https://api.wave.com/v1/checkout/sessions');
+        expect(options.method).toBe('POST');
+        expect(options.headers['Authorization']).toBe(`Bearer ${API_KEY}`);
+
+        const body = JSON.parse(options.body);
+        expect(body.amount).toBe('10000');          // Wave attend une chaîne
+        expect(body.currency).toBe('XOF');
+        expect(body.client_reference).toBe('ref-abc');
+        expect(body.success_url).toBe(PARAMS.successUrl);
+        expect(body.error_url).toBe(PARAMS.errorUrl);
     });
 
-    it('returns failure when WAVE_MERCHANT_ID is not set', () => {
+    it('returns failure when WAVE_API_KEY is missing', async () => {
         vi.unstubAllEnvs();
-        const result = createWavePayLink({ amount: 10000, internalRef: 'ref' });
+        const result = await createWaveCheckoutSession(PARAMS);
         expect(result.success).toBe(false);
         if (result.success) return;
-        expect(result.message).toContain('WAVE_MERCHANT_ID');
+        expect(result.message).toContain('WAVE_API_KEY');
     });
 
-    it('encodes the amount correctly in the URL', () => {
-        const result = createWavePayLink({ amount: 25000, internalRef: 'r' });
-        expect(result.success).toBe(true);
-        if (!result.success) return;
-        const url = new URL(result.payUrl);
-        expect(url.searchParams.get('amount')).toBe('25000');
+    it('returns failure when Wave API returns a non-ok status', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+            ok:     false,
+            status: 401,
+            json:   async () => ({ message: 'Unauthorized' }),
+        }));
+
+        const result = await createWaveCheckoutSession(PARAMS);
+        expect(result.success).toBe(false);
+        if (result.success) return;
+        expect(result.message).toContain('Unauthorized');
+    });
+
+    it('returns failure when response is missing wave_launch_url', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+            ok:   true,
+            json: async () => ({ id: 'cos_123' }), // wave_launch_url absent
+        }));
+
+        const result = await createWaveCheckoutSession(PARAMS);
+        expect(result.success).toBe(false);
+    });
+
+    it('returns failure on network error', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Network error')));
+        const result = await createWaveCheckoutSession(PARAMS);
+        expect(result.success).toBe(false);
     });
 });
+
+// ── verifyWaveWebhookSignature ───────────────────────────────────────────────
 
 describe('verifyWaveWebhookSignature', () => {
     const SECRET = 'test-webhook-secret';
@@ -60,21 +116,21 @@ describe('verifyWaveWebhookSignature', () => {
     });
 
     it('accepts a correctly signed header', () => {
-        const body   = JSON.stringify({ type: 'payment.completed' });
+        const body   = JSON.stringify({ type: 'checkout.session.completed' });
         const ts     = '1700000000';
         const header = buildHeader(ts, body);
         expect(verifyWaveWebhookSignature(header, body)).toBe(true);
     });
 
     it('rejects a tampered body', () => {
-        const body   = JSON.stringify({ type: 'payment.completed' });
+        const body   = JSON.stringify({ type: 'checkout.session.completed' });
         const ts     = '1700000000';
         const header = buildHeader(ts, body);
         expect(verifyWaveWebhookSignature(header, body + ' tampered')).toBe(false);
     });
 
     it('rejects a tampered signature', () => {
-        const body   = JSON.stringify({ type: 'payment.completed' });
+        const body   = JSON.stringify({ type: 'checkout.session.completed' });
         const ts     = '1700000000';
         const header = `Wave ${ts}.${'aa'.repeat(32)}`;
         expect(verifyWaveWebhookSignature(header, body)).toBe(false);
@@ -84,9 +140,8 @@ describe('verifyWaveWebhookSignature', () => {
         expect(verifyWaveWebhookSignature('Wave invalidsignature', '{}')).toBe(false);
     });
 
-    it('returns false on any exception (wrong secret length etc.)', () => {
+    it('returns false on any exception (empty secret, etc.)', () => {
         vi.stubEnv('WAVE_WEBHOOK_SECRET', '');
-        const result = verifyWaveWebhookSignature('Wave 123.abc', '{}');
-        expect(result).toBe(false);
+        expect(verifyWaveWebhookSignature('Wave 123.abc', '{}')).toBe(false);
     });
 });

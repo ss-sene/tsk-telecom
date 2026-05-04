@@ -19,7 +19,7 @@ export function PublicHeader() {
     ];
 
     return (
-        <header className="sticky top-0 z-50 border-b border-gray-200 dark:border-slate-800/80 bg-white/92 dark:bg-slate-900/92 backdrop-blur-md">
+        <header className="sticky top-0 z-50 border-b border-border-default bg-surface-card/95 backdrop-blur-sm">
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4">
 
                 <Link href="/" className="flex items-center gap-2.5 shrink-0">
@@ -46,7 +46,7 @@ export function PublicHeader() {
                             <Link
                                 key={href}
                                 href={href}
-                                className="relative py-1 text-sm font-medium text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-colors duration-150 after:content-[''] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:rounded-full after:bg-brand after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-left"
+                                className="relative py-1 text-sm font-medium text-text-muted hover:text-text-base transition-colors duration-150 after:content-[''] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:rounded-full after:bg-brand after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-left"
                             >
                                 {label}
                             </Link>
@@ -55,6 +55,15 @@ export function PublicHeader() {
                 </nav>
 
                 <div className="flex items-center gap-2">
+                    <Link
+                        href="/checkout"
+                        className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-xl bg-brand px-4 text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors"
+                    >
+                        Souscrire
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                    </Link>
                     <LandingMobileNav prefix={prefix} />
                 </div>
             </div>

@@ -5,17 +5,19 @@ import { PublicFooter } from '@/app/PublicFooter';
 import { COMPANY } from '@/lib/company';
 
 export const metadata: Metadata = {
-    title: "Conditions Générales d'Utilisation — TDK Telecom",
+    title:       "Conditions Générales d'Utilisation",
     description: "Conditions générales d'utilisation des services Internet de TOUBA DAROU KHOUDOSS TELECOM au Sénégal.",
+    alternates:  { canonical: '/cgu' },
+    robots:      { index: false, follow: false },
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <section className="mb-10">
-            <h2 className="text-lg font-extrabold text-slate-100 mb-4 pb-2 border-b border-slate-800">
+            <h2 className="text-lg font-extrabold text-text-base mb-4 pb-2 border-b border-border-default">
                 {title}
             </h2>
-            <div className="space-y-3 text-sm text-slate-400 leading-relaxed">
+            <div className="space-y-3 text-sm text-text-secondary leading-relaxed">
                 {children}
             </div>
         </section>
@@ -24,16 +26,16 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export default function CguPage() {
     return (
-        <div className="min-h-screen bg-slate-900 text-slate-100">
+        <div className="min-h-screen bg-surface-page text-text-base">
             <PublicHeader />
 
             <main className="mx-auto max-w-3xl px-5 py-16 sm:py-20">
                 <div className="mb-12">
                     <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Légal</p>
-                    <h1 className="text-3xl font-black tracking-[-0.03em] text-slate-50 sm:text-4xl mb-4">
+                    <h1 className="text-3xl font-black tracking-[-0.03em] text-text-base sm:text-4xl mb-4">
                         Conditions Générales d&apos;Utilisation
                     </h1>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-text-muted">
                         En vigueur à compter d&apos;avril 2026.
                         Dernière mise à jour : avril 2026.
                     </p>
@@ -102,8 +104,11 @@ export default function CguPage() {
 
                 <Section title="6. Résiliation">
                     <p>
-                        L&apos;abonné peut résilier son abonnement à tout moment en contactant TDK Telecom par téléphone
-                        ou email. TDK Telecom se réserve le droit de résilier un abonnement en cas de manquement
+                        L&apos;abonné peut résilier son abonnement à tout moment en contactant TDK Telecom par{' '}
+                        <a href={`tel:${COMPANY.phone}`} className="text-brand hover:underline">téléphone</a>{' '}
+                        ou{' '}
+                        <a href={`mailto:${COMPANY.email}`} className="text-brand hover:underline">email</a>.
+                        TDK Telecom se réserve le droit de résilier un abonnement en cas de manquement
                         grave aux présentes CGU.
                     </p>
                 </Section>
@@ -144,17 +149,17 @@ export default function CguPage() {
                     </p>
                 </Section>
 
-                <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                <div className="mt-12 pt-8 border-t border-border-default flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-slate-100 transition-colors"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-text-muted hover:text-text-base transition-colors"
                     >
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                         Retour à l&apos;accueil
                     </Link>
-                    <Link href="/mentions-legales" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
+                    <Link href="/mentions-legales" className="text-sm text-text-faint hover:text-text-secondary transition-colors">
                         Mentions légales →
                     </Link>
                 </div>

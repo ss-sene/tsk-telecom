@@ -6,17 +6,19 @@ import { PublicFooter } from '@/app/PublicFooter';
 import { COMPANY } from '@/lib/company';
 
 export const metadata: Metadata = {
-    title: 'Mentions légales — TDK Telecom',
-    description: 'Mentions légales de TOUBA DAROU KHOUDOSS TELECOM, fournisseur d\'accès Internet au Sénégal.',
+    title:       'Mentions légales',
+    description: "Mentions légales de TOUBA DAROU KHOUDOSS TELECOM, fournisseur d'accès Internet au Sénégal.",
+    alternates:  { canonical: '/mentions-legales' },
+    robots:      { index: false, follow: false },
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <section className="mb-10">
-            <h2 className="text-lg font-extrabold text-slate-100 mb-4 pb-2 border-b border-slate-800">
+            <h2 className="text-lg font-extrabold text-text-base mb-4 pb-2 border-b border-border-default">
                 {title}
             </h2>
-            <div className="space-y-3 text-sm text-slate-400 leading-relaxed">
+            <div className="space-y-3 text-sm text-text-secondary leading-relaxed">
                 {children}
             </div>
         </section>
@@ -25,7 +27,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 export default function MentionsLegalesPage() {
     return (
-        <div className="min-h-screen bg-slate-900 text-slate-100">
+        <div className="min-h-screen bg-surface-page text-text-base">
             <PublicHeader />
 
             <main className="mx-auto max-w-3xl px-5 py-16 sm:py-20">
@@ -33,25 +35,25 @@ export default function MentionsLegalesPage() {
                 {/* En-tête */}
                 <div className="mb-12">
                     <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Légal</p>
-                    <h1 className="text-3xl font-black tracking-[-0.03em] text-slate-50 sm:text-4xl mb-4">
+                    <h1 className="text-3xl font-black tracking-[-0.03em] text-text-base sm:text-4xl mb-4">
                         Mentions légales
                     </h1>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-text-muted">
                         Conformément aux dispositions légales en vigueur au Sénégal.
                         Dernière mise à jour : avril 2026.
                     </p>
                 </div>
 
                 <Section title="1. Éditeur du site">
-                    <p><span className="font-semibold text-slate-300">Dénomination sociale :</span> {COMPANY.name}</p>
-                    <p><span className="font-semibold text-slate-300">Activité :</span> Fournisseur d&apos;accès Internet haut débit au Sénégal</p>
-                    <p><span className="font-semibold text-slate-300">Adresse :</span> {COMPANY.address}</p>
+                    <p><span className="font-semibold text-text-secondary">Dénomination sociale :</span> {COMPANY.name}</p>
+                    <p><span className="font-semibold text-text-secondary">Activité :</span> Fournisseur d&apos;accès Internet haut débit au Sénégal</p>
+                    <p><span className="font-semibold text-text-secondary">Adresse :</span> {COMPANY.address}</p>
                     <p>
-                        <span className="font-semibold text-slate-300">Téléphone :</span>{' '}
+                        <span className="font-semibold text-text-secondary">Téléphone :</span>{' '}
                         <a href={`tel:${COMPANY.phone}`} className="text-brand hover:underline">{COMPANY.phoneDisplay}</a>
                     </p>
                     <p>
-                        <span className="font-semibold text-slate-300">Email :</span>{' '}
+                        <span className="font-semibold text-text-secondary">Email :</span>{' '}
                         <a href={`mailto:${COMPANY.email}`} className="text-brand hover:underline">{COMPANY.email}</a>
                     </p>
                 </Section>
@@ -66,7 +68,7 @@ export default function MentionsLegalesPage() {
 
                 <Section title="3. Hébergement">
                     <p>Ce site est hébergé par :</p>
-                    <p className="font-semibold text-slate-300">Vercel Inc.</p>
+                    <p className="font-semibold text-text-secondary">Vercel Inc.</p>
                     <p>440 N Barranca Ave #4133, Covina, CA 91723, États-Unis</p>
                     <p>
                         <a href="https://vercel.com" target="_blank" rel="noopener noreferrer" className="text-brand hover:underline">
@@ -143,12 +145,12 @@ export default function MentionsLegalesPage() {
                 </Section>
 
                 {/* Retour */}
-                <div className="mt-12 pt-8 border-t border-slate-800">
+                <div className="mt-12 pt-8 border-t border-border-default">
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-slate-100 transition-colors"
+                        className="inline-flex items-center gap-2 text-sm font-semibold text-text-muted hover:text-text-base transition-colors"
                     >
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                         Retour à l&apos;accueil

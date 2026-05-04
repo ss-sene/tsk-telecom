@@ -27,25 +27,25 @@ export function CustomListbox({ name, options, defaultValue, placeholder = "Sél
             <div className="relative w-full">
                 <input type="hidden" name={name} value={selected.value} />
 
-                <ListboxButton className="grid w-full cursor-default grid-cols-1 rounded-xl bg-slate-800 h-11 py-1.5 pl-3 pr-2 text-left text-slate-100 outline outline-1 -outline-offset-1 outline-slate-600 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand sm:text-sm/6 shadow-sm">
+                <ListboxButton className="grid w-full cursor-default grid-cols-1 rounded-xl bg-white h-11 py-1.5 pl-3 pr-2 text-left text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand sm:text-sm/6 shadow-sm">
                     <span className="col-start-1 row-start-1 flex items-center gap-3 pr-6">
                         <span className="block truncate font-medium">{selected.label}</span>
                     </span>
                     <ChevronUpDownIcon
                         aria-hidden="true"
-                        className="col-start-1 row-start-1 h-5 w-5 self-center justify-self-end text-slate-500 sm:h-4 sm:w-4"
+                        className="col-start-1 row-start-1 h-5 w-5 self-center justify-self-end text-gray-400 sm:h-4 sm:w-4"
                     />
                 </ListboxButton>
 
                 <ListboxOptions
                     transition
-                    className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-slate-800 py-1 text-base shadow-lg ring-1 ring-slate-700 focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
+                    className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-xl bg-white py-1 text-base shadow-lg ring-1 ring-gray-200 focus:outline-none data-[closed]:data-[leave]:opacity-0 data-[leave]:transition data-[leave]:duration-100 data-[leave]:ease-in sm:text-sm"
                 >
                     {options.map((option) => (
                         <ListboxOption
                             key={option.value}
                             value={option}
-                            className="group relative cursor-default select-none py-2.5 pl-3 pr-9 text-slate-100 data-[focus]:bg-brand data-[focus]:text-white data-[focus]:outline-none"
+                            className="group relative cursor-default select-none py-2.5 pl-3 pr-9 text-gray-900 data-[focus]:bg-brand data-[focus]:text-white data-[focus]:outline-none"
                         >
                             <span className="block truncate font-normal group-data-[selected]:font-bold">
                                 {option.label}

@@ -7,10 +7,9 @@ const schema = z.object({
     ADMIN_SECRET_TOKEN: z.string().min(32, 'ADMIN_SECRET_TOKEN must be at least 32 chars'),
     // App
     NEXT_PUBLIC_APP_URL: z.string().url({ message: 'NEXT_PUBLIC_APP_URL must be a valid URL' }),
-    // Wave Pay Link (no API key needed — merchant ID only)
-    WAVE_MERCHANT_ID:    z.string().min(1, 'WAVE_MERCHANT_ID is required'),
-    // Wave webhook signature (optional — only needed when webhooks are active)
-    WAVE_WEBHOOK_SECRET: z.string().min(1, 'WAVE_WEBHOOK_SECRET is required').optional(),
+    // Wave Checkout API
+    WAVE_API_KEY:        z.string().min(1, 'WAVE_API_KEY is required'),
+    WAVE_WEBHOOK_SECRET: z.string().min(1, 'WAVE_WEBHOOK_SECRET is required'),
     // Orange Money API
     OM_CLIENT_ID:     z.string().min(1, 'OM_CLIENT_ID is required'),
     OM_CLIENT_SECRET: z.string().min(1, 'OM_CLIENT_SECRET is required'),
