@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { usePathname } from 'next/navigation';
@@ -35,15 +36,15 @@ export function LandingMobileNav({ prefix = '' }: { prefix?: string }) {
             role="dialog"
             aria-modal="true"
             aria-label="Navigation"
-            className="fixed inset-0 z-[999] flex flex-col bg-white dark:bg-slate-900"
+            className="fixed inset-0 z-[999] flex flex-col bg-surface-card"
         >
-            <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-800 px-5 py-4">
+            <div className="flex items-center justify-between border-b border-border-default px-5 py-4">
                 <span className="text-base font-black text-brand">TDK Telecom</span>
                 <button
                     type="button"
                     onClick={close}
                     aria-label="Fermer le menu"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border-default text-text-muted hover:bg-surface-raised transition-colors"
                 >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -62,20 +63,34 @@ export function LandingMobileNav({ prefix = '' }: { prefix?: string }) {
                             href={item.href}
                             onClick={close}
                             aria-current={isActive ? 'page' : undefined}
-                            className={`flex items-center justify-between border-b border-gray-100 dark:border-slate-800 px-6 py-5 text-base font-semibold transition-colors ${
+                            className={`flex items-center justify-between border-b border-border-faint px-6 py-5 text-base font-semibold transition-colors ${
                                 isActive
-                                    ? 'text-brand bg-brand-light dark:bg-brand/10'
-                                    : 'text-gray-800 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800/60 active:bg-gray-100 dark:active:bg-slate-800'
+                                    ? 'text-brand bg-brand-light'
+                                    : 'text-text-secondary hover:bg-surface-raised active:bg-surface-raised'
                             }`}
                         >
                             {item.label}
-                            <svg className={`h-4 w-4 ${isActive ? 'text-brand' : 'text-gray-400 dark:text-slate-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <svg className={`h-4 w-4 ${isActive ? 'text-brand' : 'text-text-faint'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                             </svg>
                         </a>
                     );
                 })}
             </nav>
+
+            {/* CTA Souscrire */}
+            <div className="border-t border-border-faint p-5">
+                <Link
+                    href="/checkout"
+                    onClick={close}
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors shadow-sm"
+                >
+                    Souscrire maintenant
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                </Link>
+            </div>
         </div>
     );
 
@@ -87,7 +102,7 @@ export function LandingMobileNav({ prefix = '' }: { prefix?: string }) {
                 aria-expanded={open}
                 aria-controls="landing-mobile-menu"
                 aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
-                className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
+                className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border-default text-text-muted hover:bg-surface-raised transition-colors"
             >
                 {open ? (
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">

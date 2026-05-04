@@ -2,28 +2,23 @@
 import type { Metadata }   from 'next';
 import Link                from 'next/link';
 import { TDK_PLANS_ARRAY } from '@tdk/config';
+import { COMPANY }         from '@/lib/company';
 import { PublicHeader }    from './PublicHeader';
 import { PublicFooter }    from './PublicFooter';
+import { HomeHero }        from './HomeHero';
 
 export const metadata: Metadata = {
-    title:       'TDK Telecom — Internet Haut Débit au Sénégal',
-    description: 'Souscrivez à Internet haut débit au Sénégal. Deux forfaits clairs : 10 000 ou 12 000 FCFA/mois. Installation accompagnée, paiement Wave ou Orange Money.',
+    title:       'Internet Haut Débit au Sénégal — Forfaits dès 10 000 FCFA/mois',
+    description: 'TDK Telecom — Internet haut débit au Sénégal dès 10 000 FCFA/mois. Installation accompagnée, activation sous 24h, paiement Wave ou Orange Money. Couverture nationale.',
     alternates:  { canonical: '/' },
     openGraph: {
-        title:       'TDK Telecom — Internet Haut Débit au Sénégal',
-        description: 'Deux forfaits Internet au Sénégal. Paiement Wave ou Orange Money. Activation sous 24h.',
+        title:       'Internet Haut Débit au Sénégal — TDK Telecom',
+        description: 'Forfaits Internet 10 000 ou 12 000 FCFA/mois. Installation par techniciens locaux. Paiement Wave & Orange Money. Activation sous 24h.',
         url:         '/',
+        images: [{ url: '/og-image.png', width: 1424, height: 752, alt: 'TDK Telecom — Internet au Sénégal' }],
     },
 };
 
-const POPULAR = TDK_PLANS_ARRAY.find(p => p.isPopular) ?? TDK_PLANS_ARRAY[1];
-
-const MINI_CARDS = [
-    { title: 'Deux forfaits lisibles',  desc: "Standard ou Premium. Un seul critère : l'usage que vous en faites." },
-    { title: 'Formulaire en 3 minutes', desc: 'Votre nom, votre numéro, votre zone. Rien de plus.' },
-    { title: 'Wave & Orange Money',     desc: 'Paiement direct depuis votre application mobile, sans redirection complexe.' },
-    { title: 'Activation sous 24 h',    desc: 'Votre demande est traitée et votre connexion activée rapidement.' },
-];
 
 const AVANTAGES = [
     {
@@ -72,10 +67,21 @@ const STEPS = [
     },
 ];
 
-const FAQ = [
+type FaqItem = { q: string; a: string; aNode?: React.ReactNode };
+
+const FAQ: FaqItem[] = [
     {
         q: 'Dans quelles zones êtes-vous disponibles ?',
-        a: "TDK Telecom couvre plusieurs villages et quartiers au Sénégal. Lors de la souscription, vous sélectionnez votre localité dans notre liste. Si votre zone n'y figure pas, indiquez-la dans le formulaire — notre équipe vous recontacte sous 24 heures pour confirmer la faisabilité.",
+        a: "TDK Telecom couvre plusieurs villages et localités au Sénégal. Consultez la liste complète de nos zones couvertes. Si votre localité n'y figure pas, indiquez-la dans le formulaire — notre équipe vous recontacte sous 24 heures pour confirmer la faisabilité.",
+        aNode: (
+            <>
+                TDK Telecom couvre plusieurs villages et localités au Sénégal.{' '}
+                <Link href="/zones-couvertes" className="text-brand font-semibold hover:underline">
+                    Consultez la liste complète de nos zones couvertes
+                </Link>
+                . Si votre localité n&apos;y figure pas, indiquez-la dans le formulaire — notre équipe vous recontacte sous 24 heures pour confirmer la faisabilité.
+            </>
+        ),
     },
     {
         q: 'Comment fonctionne le paiement ?',
@@ -88,6 +94,57 @@ const FAQ = [
     {
         q: 'Puis-je changer de forfait plus tard ?',
         a: 'Oui. Contactez notre support par WhatsApp ou par téléphone pour adapter votre abonnement à vos besoins. Le changement est effectif dès le mois suivant, sans frais supplémentaires.',
+        aNode: (
+            <>
+                Oui. Contactez notre support par{' '}
+                <a href={COMPANY.whatsappUrl} target="_blank" rel="noopener noreferrer" className="text-brand font-semibold hover:underline">
+                    WhatsApp
+                </a>{' '}
+                ou par{' '}
+                <a href={`tel:${COMPANY.phone}`} className="text-brand font-semibold hover:underline">
+                    téléphone
+                </a>{' '}
+                pour adapter votre abonnement à vos besoins. Le changement est effectif dès le mois suivant, sans frais supplémentaires.
+            </>
+        ),
+    },
+    {
+        q: "Proposez-vous l'installation Starlink au Sénégal ?",
+        a: "Oui. TDK Telecom est partenaire officiel Starlink. Nous installons et activons Starlink dans toutes les zones du Sénégal, y compris les villages ruraux sans accès fibre ou 4G. Abonnements dès 22 000 F/mois, paiement Wave ou Orange Money.",
+        aNode: (
+            <>
+                Oui. TDK Telecom est partenaire officiel Starlink. Nous installons et activons Starlink dans toutes les zones du Sénégal, y compris les villages ruraux.{' '}
+                <Link href="/starlink" className="text-brand font-semibold hover:underline">
+                    Découvrez nos offres Starlink
+                </Link>
+                {' '}— abonnements dès 22 000 F/mois, paiement Wave ou Orange Money.
+            </>
+        ),
+    },
+    {
+        q: 'Quelle est la différence entre le Pack Standard et le Pack Premium ?',
+        a: "Le Pack Standard (10 000 FCFA/mois) offre jusqu'à 15 Mbps — idéal pour la navigation quotidienne. Le Pack Premium (12 000 FCFA/mois) monte jusqu'à 30 Mbps pour le streaming, le télétravail et plusieurs appareils simultanés.",
+        aNode: (
+            <>
+                Le Pack Standard (10&nbsp;000 FCFA/mois) offre jusqu&apos;à 15 Mbps — idéal pour la navigation quotidienne. Le Pack Premium (12&nbsp;000 FCFA/mois) monte jusqu&apos;à 30 Mbps pour le streaming et le télétravail.{' '}
+                <Link href="/checkout" className="text-brand font-semibold hover:underline">
+                    Comparez et souscrivez directement en ligne
+                </Link>.
+            </>
+        ),
+    },
+    {
+        q: 'Proposez-vous des équipements réseau et routeurs ?',
+        a: "Oui. Notre boutique propose des forfaits Internet, des kits Starlink, des routeurs et des équipements réseau. Contactez-nous via WhatsApp pour un devis personnalisé.",
+        aNode: (
+            <>
+                Oui.{' '}
+                <Link href="/boutique" className="text-brand font-semibold hover:underline">
+                    Notre boutique
+                </Link>{' '}
+                propose des forfaits Internet, des kits Starlink, des routeurs et des équipements réseau. Contactez-nous via WhatsApp pour un devis personnalisé.
+            </>
+        ),
     },
 ];
 
@@ -101,6 +158,66 @@ const FAQ_JSON_LD = {
     })),
 };
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tdktelecom.sn';
+
+const SERVICES_JSON_LD = {
+    '@context':  'https://schema.org',
+    '@type':     'ItemList',
+    'name':      'Forfaits Internet TDK Telecom',
+    'itemListElement': [
+        {
+            '@type':    'ListItem',
+            'position': 1,
+            'item': {
+                '@type':       'Service',
+                '@id':         `${APP_URL}/#pack-standard`,
+                'name':        'Pack Standard Internet',
+                'description': "Connexion Internet haut débit jusqu'à 15 Mbps. Idéal pour la navigation quotidienne et les réseaux sociaux.",
+                'provider':    { '@id': `${APP_URL}/#organization` },
+                'areaServed':  { '@type': 'Country', 'name': 'Sénégal' },
+                'offers': {
+                    '@type':         'Offer',
+                    'price':         '10000',
+                    'priceCurrency': 'XOF',
+                    'priceSpecification': {
+                        '@type':            'UnitPriceSpecification',
+                        'price':            10000,
+                        'priceCurrency':    'XOF',
+                        'unitText':         'month',
+                        'billingIncrement': 1,
+                    },
+                    'eligibleRegion': { '@type': 'Country', 'name': 'Sénégal' },
+                },
+            },
+        },
+        {
+            '@type':    'ListItem',
+            'position': 2,
+            'item': {
+                '@type':       'Service',
+                '@id':         `${APP_URL}/#pack-premium`,
+                'name':        'Pack Premium Internet',
+                'description': "Connexion Internet haut débit jusqu'à 30 Mbps. Pour le streaming, le télétravail et plusieurs appareils simultanés.",
+                'provider':    { '@id': `${APP_URL}/#organization` },
+                'areaServed':  { '@type': 'Country', 'name': 'Sénégal' },
+                'offers': {
+                    '@type':         'Offer',
+                    'price':         '12000',
+                    'priceCurrency': 'XOF',
+                    'priceSpecification': {
+                        '@type':            'UnitPriceSpecification',
+                        'price':            12000,
+                        'priceCurrency':    'XOF',
+                        'unitText':         'month',
+                        'billingIncrement': 1,
+                    },
+                    'eligibleRegion': { '@type': 'Country', 'name': 'Sénégal' },
+                },
+            },
+        },
+    ],
+};
+
 const TRUST_ITEMS = [
     { icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',        label: 'Paiement sécurisé' },
     { icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',         label: 'Activation sous 24 h' },
@@ -110,7 +227,7 @@ const TRUST_ITEMS = [
 
 function CheckIcon() {
     return (
-        <svg className="h-4 w-4 flex-none text-success" fill="currentColor" viewBox="0 0 20 20">
+        <svg className="h-4 w-4 flex-none text-success" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
         </svg>
     );
@@ -118,7 +235,7 @@ function CheckIcon() {
 
 export default function HomePage() {
     return (
-        <div className="min-h-screen bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">
+        <div className="min-h-screen bg-surface-page">
 
             {/* ── NAV ── */}
             <PublicHeader />
@@ -126,120 +243,30 @@ export default function HomePage() {
             <main>
 
                 {/* ── HERO ── */}
-                <section className="bg-white dark:bg-slate-900 px-5 pt-16 pb-20 sm:pt-24 sm:pb-28 lg:pb-32">
-                    <div className="mx-auto max-w-6xl">
-                        <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-12 lg:gap-16 items-center">
-
-                            {/* Texte gauche */}
-                            <div>
-                                {/* Eyebrow — groupé visuellement avec le titre, mb réduit */}
-                                <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-brand-light dark:bg-brand/15 px-4 py-2 text-xs font-bold text-brand dark:text-blue-400">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-success shrink-0" />
-                                    Disponible au Sénégal &bull; Installation accompagnée &bull; Paiement mobile
-                                </div>
-
-                                {/* Titre — plus d'espace vers le body copy */}
-                                <h1 className="text-[clamp(36px,6.5vw,60px)] font-black leading-[0.97] tracking-[-0.04em] text-gray-900 dark:text-slate-50 mb-6">
-                                    Un internet fiable.<br />
-                                    Deux offres claires.<br />
-                                    <span className="text-brand">Payez depuis votre téléphone.</span>
-                                </h1>
-
-                                <p className="text-lg text-gray-500 dark:text-slate-400 leading-relaxed mb-8 max-w-[50ch]">
-                                    TDK Telecom vous propose une connexion haut débit au Sénégal, avec deux forfaits
-                                    lisibles, une souscription rapide et un paiement simple via Wave ou Orange Money.
-                                </p>
-
-                                {/* CTA group — mb-8 uniforme */}
-                                <div className="flex flex-wrap gap-3 mb-8">
-                                    <Link
-                                        href="#offres"
-                                        className="inline-flex h-12 items-center gap-2 rounded-xl bg-brand px-7 text-sm font-bold text-white hover:bg-brand-hover transition-colors shadow-[0_4px_14px_rgba(26,60,159,0.25)] dark:shadow-[0_4px_20px_rgba(26,60,159,0.40)]"
-                                    >
-                                        Voir les forfaits
-                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </Link>
-                                    <Link
-                                        href="/checkout"
-                                        className="inline-flex h-12 items-center rounded-xl border border-gray-200 dark:border-slate-600 bg-transparent px-7 text-sm font-bold text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
-                                    >
-                                        Souscrire maintenant
-                                    </Link>
-                                </div>
-
-                                {/* Trust row — gap-x/y séparés pour le wrapping mobile */}
-                                <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-400 dark:text-slate-500">
-                                    {['Souscription en 3 minutes', 'Wave & Orange Money', 'Installation comprise'].map(label => (
-                                        <span key={label} className="flex items-center gap-1.5">
-                                            <CheckIcon />
-                                            {label}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Hero card droite */}
-                            <div className="rounded-2xl bg-card dark:bg-slate-800 ring-1 ring-gray-200 dark:ring-slate-700 p-6 shadow-[0_2px_12px_-2px_rgba(0,0,0,.10)] dark:shadow-none">
-
-                                {/* Bloc forfait vedette */}
-                                <div className="rounded-xl bg-gray-900 dark:bg-[#0f1e3d] ring-1 ring-white/5 p-6 text-white mb-4">
-                                    <p className="text-[10px] font-bold uppercase tracking-[.12em] text-gray-400 dark:text-blue-400/70 mb-3">Forfait le plus choisi</p>
-                                    <div className="flex items-baseline gap-2 mb-1.5">
-                                        <span className="text-4xl font-black tracking-[-0.04em]">
-                                            {POPULAR.price.toLocaleString('fr-FR')}
-                                        </span>
-                                        <span className="text-sm font-semibold text-gray-400 dark:text-slate-400">FCFA / mois</span>
-                                    </div>
-                                    <p className="text-sm text-gray-400 dark:text-slate-300 leading-relaxed mb-5">
-                                        Connexion stable pour la maison, le travail et le streaming.
-                                    </p>
-                                    <Link
-                                        href={`/checkout?plan=${encodeURIComponent(POPULAR.name)}`}
-                                        className="flex h-10 w-full items-center justify-center rounded-xl bg-brand text-xs font-bold text-white hover:bg-brand-hover transition-colors shadow-[0_2px_8px_rgba(26,60,159,.45)]"
-                                    >
-                                        Souscrire à ce forfait
-                                    </Link>
-                                </div>
-
-                                {/* Mini-cartes — même niveau de surface que le container */}
-                                <div className="grid grid-cols-2 gap-3">
-                                    {MINI_CARDS.map(card => (
-                                        <div key={card.title} className="rounded-xl bg-white dark:bg-slate-700/30 ring-1 ring-gray-100 dark:ring-slate-600/50 p-4">
-                                            <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-1">{card.title}</h3>
-                                            <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">{card.desc}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </section>
+                <HomeHero />
 
                 {/* ── AVANTAGES ── */}
-                <section id="avantages" className="bg-card dark:bg-slate-800/30 px-5 py-20 sm:py-24">
+                <section id="avantages" className="bg-surface-section px-5 py-20 sm:py-24">
                     <div className="mx-auto max-w-6xl">
                         <div className="text-center mb-14">
                             <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Pourquoi TDK ?</p>
-                            <h2 className="text-3xl font-black text-gray-900 dark:text-slate-50 sm:text-4xl tracking-[-0.03em] mb-3">
+                            <h2 className="text-3xl font-bold text-text-base sm:text-4xl tracking-[-0.02em] mb-3">
                                 Ce qui nous distingue
                             </h2>
-                            <p className="text-base text-gray-500 dark:text-slate-400 max-w-[44ch] mx-auto">
+                            <p className="text-base text-text-secondary max-w-[44ch] mx-auto">
                                 Une offre pensée pour la réalité du terrain au Sénégal.
                             </p>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                             {AVANTAGES.map(a => (
-                                <div key={a.title} className="rounded-2xl bg-white dark:bg-slate-800 p-6 shadow-sm dark:shadow-[0_1px_4px_rgba(0,0,0,.25)] ring-1 ring-gray-100 dark:ring-slate-600/60">
-                                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-light dark:bg-brand/15 ring-1 ring-brand/10 dark:ring-brand/20">
-                                        <svg className="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <div key={a.title} className="rounded-2xl bg-surface-card p-6 border border-border-subtle">
+                                    <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-light ring-1 ring-brand/10">
+                                        <svg className="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d={a.path} />
                                         </svg>
                                     </div>
-                                    <h3 className="font-bold text-gray-900 dark:text-slate-100 mb-2">{a.title}</h3>
-                                    <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">{a.desc}</p>
+                                    <h3 className="font-semibold text-text-base mb-2">{a.title}</h3>
+                                    <p className="text-sm text-text-secondary leading-relaxed">{a.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -247,17 +274,17 @@ export default function HomePage() {
                 </section>
 
                 {/* ── OFFRES ── */}
-                <section id="offres" className="bg-white dark:bg-slate-900 px-5 py-20 sm:py-24 scroll-mt-20">
+                <section id="offres" className="bg-surface-page px-5 py-20 sm:py-24 scroll-mt-20">
                     <div className="mx-auto max-w-6xl">
 
                         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-14">
                             <div>
                                 <p className="text-xs font-bold uppercase tracking-widest text-brand mb-2">Tarifs simples</p>
-                                <h2 className="text-3xl font-black text-gray-900 dark:text-slate-50 sm:text-4xl tracking-[-0.03em]">
+                                <h2 className="text-3xl font-bold text-text-base sm:text-4xl tracking-[-0.02em]">
                                     Deux forfaits, un choix simple
                                 </h2>
                             </div>
-                            <p className="text-sm text-gray-500 dark:text-slate-400 max-w-[42ch]">
+                            <p className="text-sm text-text-secondary max-w-[42ch]">
                                 {"Pas d'offres complexes, pas de jargon. Choisissez en fonction de votre usage, payez chaque mois."}
                             </p>
                         </div>
@@ -266,35 +293,35 @@ export default function HomePage() {
                             {TDK_PLANS_ARRAY.map(plan => (
                                 <article
                                     key={plan.id}
-                                    className={`relative flex flex-col rounded-2xl p-7 ring-2 transition-all ${
+                                    className={`relative flex flex-col rounded-2xl p-7 border-2 transition-all ${
                                         plan.isPopular
-                                            ? 'ring-brand bg-white dark:bg-slate-800 shadow-xl shadow-brand/10 dark:shadow-[0_8px_32px_-4px_rgba(26,60,159,.28)]'
-                                            : 'ring-gray-200 dark:ring-slate-700 bg-white dark:bg-slate-800 shadow-sm'
+                                            ? 'border-brand/70 bg-surface-raised'
+                                            : 'border-border-subtle bg-surface-card'
                                     }`}
                                 >
                                     {plan.isPopular && (
-                                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-4 py-1 text-xs font-bold text-white shadow-sm">
+                                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand/10 border border-brand/30 px-4 py-1 text-xs font-medium text-brand">
                                             Le plus choisi
                                         </div>
                                     )}
                                     <div className="flex-1">
                                         <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold mb-4 ${
                                             plan.isPopular
-                                                ? 'bg-brand-light dark:bg-brand/20 text-brand'
-                                                : 'bg-gray-100 dark:bg-slate-700/70 text-gray-600 dark:text-slate-300'
+                                                ? 'bg-brand-light text-brand'
+                                                : 'bg-surface-section text-text-secondary border border-border-subtle'
                                         }`}>
                                             {plan.isPopular ? 'Streaming & travail' : 'Usage quotidien'}
                                         </span>
                                         <div className="flex items-baseline gap-1.5 mb-1">
-                                            <span className="text-4xl font-black tracking-[-0.04em] text-gray-900 dark:text-slate-50">
+                                            <span className="text-4xl font-extrabold tracking-[-0.03em] text-text-base">
                                                 {plan.price.toLocaleString('fr-FR')}
                                             </span>
-                                            <span className="text-sm font-semibold text-gray-500 dark:text-slate-400">FCFA / mois</span>
+                                            <span className="text-sm font-semibold text-text-muted">FCFA / mois</span>
                                         </div>
-                                        <p className="text-xs text-gray-400 dark:text-slate-500 mb-5">Sans engagement &bull; Activation sous 24 h</p>
+                                        <p className="text-xs text-text-faint mb-5">Sans engagement &bull; Activation sous 24 h</p>
                                         <ul className="space-y-2.5 mb-6">
                                             {plan.features.map(feat => (
-                                                <li key={feat} className="flex items-center gap-2.5 text-sm text-gray-600 dark:text-slate-300">
+                                                <li key={feat} className="flex items-center gap-2.5 text-sm text-text-secondary">
                                                     <CheckIcon />
                                                     {feat}
                                                 </li>
@@ -305,8 +332,8 @@ export default function HomePage() {
                                         href={`/checkout?plan=${encodeURIComponent(plan.name)}`}
                                         className={`flex h-12 items-center justify-center rounded-xl text-sm font-bold transition-colors ${
                                             plan.isPopular
-                                                ? 'bg-brand text-white hover:bg-brand-hover shadow-[0_2px_8px_rgba(26,60,159,.35)]'
-                                                : 'border-2 border-brand dark:border-blue-400/60 text-brand dark:text-blue-400 hover:bg-brand hover:text-white hover:border-brand dark:hover:bg-brand dark:hover:border-brand dark:hover:text-white transition-colors'
+                                                ? 'bg-brand text-[#121A26] hover:bg-brand-hover'
+                                                : 'border-2 border-brand/60 text-brand hover:bg-brand/10 hover:border-brand transition-colors'
                                         }`}
                                     >
                                         Souscrire à cette offre
@@ -316,10 +343,10 @@ export default function HomePage() {
                         </div>
 
                         {/* Trust bar */}
-                        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400 dark:text-slate-500">
+                        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-text-faint">
                             {TRUST_ITEMS.map(({ icon, label }) => (
                                 <span key={label} className="flex items-center gap-2">
-                                    <svg className="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} />
                                     </svg>
                                     {label}
@@ -331,37 +358,35 @@ export default function HomePage() {
                 </section>
 
                 {/* ── COMMENT ÇA MARCHE ── */}
-                <section id="comment-ca-marche" className="bg-card dark:bg-slate-800/30 px-5 py-20 sm:py-24 scroll-mt-20">
+                <section id="comment-ca-marche" className="bg-surface-section px-5 py-20 sm:py-24 scroll-mt-20">
                     <div className="mx-auto max-w-6xl">
                         <div className="text-center mb-14">
                             <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Processus</p>
-                            <h2 className="text-3xl font-black text-gray-900 dark:text-slate-50 sm:text-4xl tracking-[-0.03em]">
+                            <h2 className="text-3xl font-bold text-text-base sm:text-4xl tracking-[-0.02em]">
                                 Comment ça marche
                             </h2>
-                            <p className="mt-3 text-base text-gray-500 dark:text-slate-400 max-w-[46ch] mx-auto">
+                            <p className="mt-3 text-base text-text-secondary max-w-[46ch] mx-auto">
                                 De la sélection du forfait au paiement mobile, tout se fait en 3 étapes depuis votre téléphone.
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
-                            {/* Connecteur horizontal desktop — centré sur le badge h-12 (top 28px + 24px = 52px) */}
-                            <div className="hidden md:block absolute top-[52px] left-[calc(33.33%+24px)] right-[calc(33.33%+24px)] h-px bg-gray-300 dark:bg-slate-600/70 z-0" />
+                            <div className="hidden md:block absolute top-[52px] left-[calc(33.33%+24px)] right-[calc(33.33%+24px)] h-px bg-border-default z-0" aria-hidden="true" />
 
                             {STEPS.map(step => (
-                                <div key={step.num} className="relative z-10 flex flex-col items-start rounded-2xl bg-white dark:bg-slate-800 p-7 shadow-sm dark:shadow-[0_1px_4px_rgba(0,0,0,.25)] ring-1 ring-gray-100 dark:ring-slate-600/60">
-                                    {/* Numéro — h-12 pour plus d'ancrage visuel */}
-                                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-base font-black text-white shrink-0 shadow-[0_2px_8px_rgba(26,60,159,.30)]">
+                                <div key={step.num} className="relative z-10 flex flex-col items-start rounded-2xl bg-surface-card p-7 border border-border-subtle">
+                                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-brand/15 border border-brand/30 text-base font-bold text-brand shrink-0">
                                         {step.num}
                                     </div>
-                                    <h3 className="text-base font-extrabold text-gray-900 dark:text-slate-100 mb-2">{step.title}</h3>
-                                    <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed flex-1">{step.desc}</p>
+                                    <h3 className="text-base font-semibold text-text-base mb-2">{step.title}</h3>
+                                    <p className="text-sm text-text-secondary leading-relaxed flex-1">{step.desc}</p>
                                     {step.cta && step.href && (
                                         <Link
                                             href={step.href}
                                             className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-brand hover:text-brand-hover transition-colors"
                                         >
                                             {step.cta}
-                                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                             </svg>
                                         </Link>
@@ -373,14 +398,14 @@ export default function HomePage() {
                 </section>
 
                 {/* ── FAQ ── */}
-                <section id="faq" className="bg-white dark:bg-slate-900 px-5 py-20 sm:py-24 scroll-mt-20">
+                <section id="faq" className="bg-surface-section px-5 py-20 sm:py-24 scroll-mt-20">
                     <div className="mx-auto max-w-3xl">
                         <div className="text-center mb-14">
                             <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Questions fréquentes</p>
-                            <h2 className="text-3xl font-black text-gray-900 dark:text-slate-50 sm:text-4xl tracking-[-0.03em] mb-3">
+                            <h2 className="text-3xl font-bold text-text-base sm:text-4xl tracking-[-0.02em] mb-3">
                                 Tout ce que vous devez savoir
                             </h2>
-                            <p className="text-base text-gray-500 dark:text-slate-400 max-w-[42ch] mx-auto">
+                            <p className="text-base text-text-secondary max-w-[42ch] mx-auto">
                                 Les réponses aux questions les plus posées avant de souscrire.
                             </p>
                         </div>
@@ -388,22 +413,25 @@ export default function HomePage() {
                             {FAQ.map(item => (
                                 <details
                                     key={item.q}
-                                    className="group rounded-2xl bg-card dark:bg-slate-800 ring-1 ring-gray-100 dark:ring-slate-600/50 px-6 py-5 cursor-pointer transition-[box-shadow,border-color] duration-150 hover:ring-gray-300 dark:hover:ring-slate-500 group-open:ring-gray-200 dark:group-open:ring-slate-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-brand/40"
+                                    className="group rounded-2xl bg-surface-section border border-border-subtle px-6 py-5 cursor-pointer transition-[background-color,border-color] duration-200 open:bg-surface-card open:border-brand/40 focus-within:outline-none focus-within:ring-2 focus-within:ring-brand/40"
                                 >
-                                    <summary className="flex items-center justify-between gap-4 font-bold text-gray-900 dark:text-slate-100 list-none select-none [&::-webkit-details-marker]:hidden">
+                                    <summary className="flex items-center justify-between gap-4 font-semibold text-text-base list-none select-none [&::-webkit-details-marker]:hidden">
                                         <span>{item.q}</span>
-                                        <span className="ml-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gray-100 dark:bg-slate-700 group-open:bg-brand-light dark:group-open:bg-brand/20 transition-colors duration-150">
+                                        <span className="ml-4 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface-raised group-open:bg-brand/15 transition-colors duration-200">
                                             <svg
-                                                className="h-4 w-4 text-gray-400 dark:text-slate-500 group-open:text-brand transition-transform duration-200 group-open:rotate-180"
+                                                className="h-4 w-4 text-text-faint group-open:text-brand transition-transform duration-200 group-open:rotate-180"
                                                 fill="none"
                                                 viewBox="0 0 24 24"
                                                 stroke="currentColor"
+                                                aria-hidden="true"
                                             >
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </span>
                                     </summary>
-                                    <p className="mt-4 pb-1 text-sm text-gray-500 dark:text-slate-400 leading-relaxed">{item.a}</p>
+                                    <p className="mt-4 pb-1 text-sm text-text-secondary leading-relaxed">
+                                        {item.aNode ?? item.a}
+                                    </p>
                                 </details>
                             ))}
                         </div>
@@ -411,31 +439,30 @@ export default function HomePage() {
                 </section>
 
                 {/* ── STARLINK PARTNER ── */}
-                <section className="relative overflow-hidden bg-[#080E2A] px-5 py-20 sm:py-28">
+                <section className="relative overflow-hidden bg-surface-raised px-5 py-20 sm:py-28">
                     <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(26,60,159,.55),transparent)]" />
-                        <div className="absolute top-1/4 right-1/4 h-72 w-72 rounded-full bg-brand/10 blur-3xl" />
-                        <div className="absolute bottom-1/4 left-1/4 h-56 w-56 rounded-full bg-purple-500/8 blur-3xl" />
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_-10%,rgba(96,150,186,0.12),transparent)]" />
+                        <div className="absolute top-1/4 right-1/4 h-72 w-72 rounded-full bg-brand/6 blur-3xl" />
+                        <div className="absolute bottom-1/4 left-1/4 h-56 w-56 rounded-full bg-[#6096BA]/6 blur-3xl" />
                     </div>
 
                     <div className="relative mx-auto max-w-6xl">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-                            {/* Texte */}
                             <div>
-                                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold text-white/80 backdrop-blur-sm">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-4 py-1.5 text-xs font-medium text-brand">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" aria-hidden="true" />
                                     Partenaire officiel Starlink au Sénégal
                                 </div>
 
-                                <h2 className="text-3xl font-black tracking-[-0.04em] sm:text-4xl lg:text-5xl text-white mb-5 leading-[1.05]">
+                                <h2 className="text-3xl font-bold tracking-[-0.03em] sm:text-4xl lg:text-5xl text-text-base mb-5 leading-[1.05]">
                                     Internet par satellite{' '}
-                                    <span className="bg-linear-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
+                                    <span className="bg-linear-to-r from-[#6FA3C8] to-[#A3CEF1] bg-clip-text text-transparent">
                                         partout au Sénégal
                                     </span>
                                 </h2>
 
-                                <p className="text-base text-white/70 leading-relaxed mb-8 max-w-[48ch]">
+                                <p className="text-base text-text-secondary leading-relaxed mb-8 max-w-[48ch]">
                                     TDK Telecom est partenaire Starlink pour le Sénégal. Nous installons et activons
                                     votre connexion satellite — même en zone rurale, sans infrastructure filaire.
                                     Abonnements dès 22 000 F/mois, payables via Wave ou Orange Money.
@@ -443,16 +470,15 @@ export default function HomePage() {
 
                                 <Link
                                     href="/starlink"
-                                    className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-bold text-white hover:bg-brand-hover transition-colors shadow-[0_4px_20px_rgba(26,60,159,.40)]"
+                                    className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors"
                                 >
                                     Voir les offres Starlink
-                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                     </svg>
                                 </Link>
                             </div>
 
-                            {/* Stats */}
                             <div className="grid grid-cols-2 gap-4">
                                 {[
                                     { value: '305',    unit: 'Mbps',  label: 'Débit max descendant'  },
@@ -460,12 +486,12 @@ export default function HomePage() {
                                     { value: '100%',   unit: '',       label: 'Sénégal couvert'       },
                                     { value: '< 40',   unit: 'ms',    label: 'Latence résidentiel'   },
                                 ].map(({ value, unit, label }) => (
-                                    <div key={label} className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5">
-                                        <p className="text-2xl font-black text-white mb-0.5">
+                                    <div key={label} className="rounded-2xl border border-border-subtle bg-surface-card/40 p-5">
+                                        <p className="text-2xl font-extrabold text-text-base mb-0.5">
                                             {value}
-                                            {unit && <span className="text-sm font-bold text-white/50 ml-1">{unit}</span>}
+                                            {unit && <span className="text-sm font-bold text-text-secondary ml-1">{unit}</span>}
                                         </p>
-                                        <p className="text-xs text-white/50">{label}</p>
+                                        <p className="text-xs text-text-faint">{label}</p>
                                     </div>
                                 ))}
                             </div>
@@ -474,23 +500,22 @@ export default function HomePage() {
                 </section>
 
                 {/* ── CTA FINALE ── */}
-                <section className="px-5 py-20 sm:py-28 bg-white dark:bg-slate-900">
+                <section className="px-5 py-20 sm:py-28 bg-surface-section">
                     <div className="mx-auto max-w-6xl">
-                        <div className="rounded-2xl bg-brand px-8 py-16 sm:px-14 sm:py-20 text-white text-center shadow-xl shadow-brand/25 dark:shadow-[0_20px_60px_-12px_rgba(26,60,159,.50)]">
-                            <p className="text-xs font-bold uppercase tracking-widest text-blue-300 mb-3">Prêt à vous connecter ?</p>
-                            <h2 className="text-3xl font-black sm:text-4xl tracking-[-0.03em] mb-4 max-w-[28ch] mx-auto">
+                        <div className="rounded-2xl bg-surface-card px-8 py-16 sm:px-14 sm:py-20 text-center border border-border-subtle shadow-[var(--shadow-card-md)]">
+                            <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Prêt à vous connecter ?</p>
+                            <h2 className="text-3xl font-bold sm:text-4xl tracking-[-0.02em] mb-4 max-w-[28ch] mx-auto text-text-base">
                                 {"Souscrivez dès aujourd'hui depuis votre téléphone."}
                             </h2>
-                            <p className="text-base text-blue-100/80 mb-10 max-w-[46ch] mx-auto leading-relaxed">
+                            <p className="text-base text-text-secondary mb-10 max-w-[46ch] mx-auto leading-relaxed">
                                 Choisissez votre forfait, remplissez le formulaire en 3 minutes et payez
                                 directement depuis Wave ou Orange Money. Simple, clair, sécurisé.
                             </p>
 
-                            {/* CTA group */}
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                                 <Link
                                     href="/checkout"
-                                    className="inline-flex h-13 w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-white px-8 text-sm font-bold text-brand hover:bg-blue-50 transition-colors shadow-[0_4px_16px_rgba(0,0,0,.18)]"
+                                    className="inline-flex h-13 w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-brand px-8 text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors shadow-sm"
                                 >
                                     Commencer la souscription
                                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -499,17 +524,18 @@ export default function HomePage() {
                                 </Link>
                                 <Link
                                     href="#offres"
-                                    className="inline-flex h-13 w-full sm:w-auto items-center justify-center rounded-xl border border-white/40 bg-white/15 px-8 text-sm font-bold text-white hover:bg-white/25 transition-colors"
+                                    className="inline-flex h-13 w-full sm:w-auto items-center justify-center rounded-xl border border-brand/60 bg-transparent px-8 text-sm font-semibold text-brand hover:bg-brand/10 transition-colors"
                                 >
                                     Voir les forfaits
                                 </Link>
                             </div>
 
-                            {/* Trust row */}
-                            <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-blue-200/80">
+                            <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-muted">
                                 {['Paiement 100% sécurisé', 'Wave & Orange Money acceptés', 'Aucun frais caché'].map(label => (
                                     <span key={label} className="flex items-center gap-1.5">
-                                        <CheckIcon />
+                                        <svg className="h-4 w-4 flex-none text-success" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
                                         {label}
                                     </span>
                                 ))}
@@ -521,6 +547,10 @@ export default function HomePage() {
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSON_LD) }}
+                />
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(SERVICES_JSON_LD) }}
                 />
             </main>
 

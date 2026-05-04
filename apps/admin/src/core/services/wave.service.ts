@@ -1,61 +1,91 @@
 // core/services/wave.service.ts
-// Wave Pay Link marchand — aucune clé API requise
+// Wave Checkout API
 //
 // Flow :
-// 1. Générer https://pay.wave.com/m/{WAVE_MERCHANT_ID}?amount={montant}
-// 2. Rediriger le client vers ce lien → ouvre l'app Wave (mobile) ou Wave web (desktop)
-// 3. Le client paie → revient sur la page de succès
-// 4. L'admin confirme le paiement via le dashboard (ou via webhook Wave API si activé plus tard)
+// 1. POST /v1/checkout/sessions → wave_launch_url + session id
+// 2. Rediriger le client vers wave_launch_url :
+//    - Mobile avec Wave installé → ouvre l'app directement
+//    - Mobile sans Wave          → invite à télécharger l'app
+//    - Desktop                   → QR code à scanner avec l'app Wave
+// 3. Le client confirme dans l'app Wave
+// 4. Wave POSTe checkout.session.completed sur notre webhook
+// 5. En fallback, la page succès peut vérifier via GET /v1/checkout/sessions/:id
 //
-// Env var requise :
-//   WAVE_MERCHANT_ID — alias de ta boutique Wave (ex: "tdk-telecom")
-//                      Visible dans l'app Wave Business ou ton profil marchand
-//
-// Pour le webhook automatique (optionnel, nécessite un compte Wave Business avec API) :
-//   WAVE_WEBHOOK_SECRET — secret de signature (à activer plus tard si besoin)
+// Env vars requises :
+//   WAVE_API_KEY        — clé Bearer (Wave Business Dashboard → API Keys)
+//   WAVE_WEBHOOK_SECRET — secret de signature HMAC-SHA256 (Wave Dashboard → Webhooks)
 
 import { createHmac, timingSafeEqual } from 'crypto';
 
-// --- TYPES ---
+const WAVE_API_BASE = 'https://api.wave.com';
 
-export interface CreateWavePayLinkParams {
-    amount:      number;   // en XOF (entier)
-    internalRef: string;   // référence interne pour traçabilité
+// ── Types ────────────────────────────────────────────────────────────────────
+
+export interface CreateWaveCheckoutSessionParams {
+    amount:      number;  // en XOF (entier)
+    internalRef: string;  // client_reference — identifiant interne du paiement
+    successUrl:  string;  // URL Wave redirige après paiement confirmé
+    errorUrl:    string;  // URL Wave redirige après annulation ou échec
 }
 
-export type CreateWavePayLinkResult =
-    | { success: true;  payUrl: string; sessionId: string }
+export type CreateWaveCheckoutSessionResult =
+    | { success: true;  waveUrl: string; sessionId: string }
     | { success: false; message: string };
 
-// --- GÉNÉRER LE LIEN MARCHAND WAVE ---
+// ── Créer une session de paiement Wave ───────────────────────────────────────
 
-export function createWavePayLink(
-    params: CreateWavePayLinkParams
-): CreateWavePayLinkResult {
-    const merchantId = process.env.WAVE_MERCHANT_ID;
-
-    if (!merchantId) {
-        return { success: false, message: 'WAVE_MERCHANT_ID non configuré' };
+export async function createWaveCheckoutSession(
+    params: CreateWaveCheckoutSessionParams,
+): Promise<CreateWaveCheckoutSessionResult> {
+    const apiKey = process.env.WAVE_API_KEY;
+    if (!apiKey) {
+        return { success: false, message: 'WAVE_API_KEY non configuré' };
     }
 
-    const url = new URL(`https://pay.wave.com/m/${merchantId}`);
-    url.searchParams.set('amount', String(params.amount));
+    try {
+        const res = await fetch(`${WAVE_API_BASE}/v1/checkout/sessions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type':  'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+                amount:           String(params.amount),  // Wave attend une chaîne
+                currency:         'XOF',
+                client_reference: params.internalRef,
+                success_url:      params.successUrl,
+                error_url:        params.errorUrl,
+            }),
+            signal: AbortSignal.timeout(15_000),
+        });
 
-    return {
-        success:   true,
-        payUrl:    url.toString(),
-        sessionId: params.internalRef,  // On utilise notre ref comme identifiant de session
-    };
+        const data = await res.json() as { wave_launch_url?: string; id?: string; message?: string };
+
+        if (!res.ok || !data.wave_launch_url || !data.id) {
+            return {
+                success: false,
+                message: data.message ?? `Wave API erreur ${res.status}`,
+            };
+        }
+
+        return {
+            success:   true,
+            waveUrl:   data.wave_launch_url,
+            sessionId: data.id,
+        };
+    } catch (err) {
+        console.error('[wave] createCheckoutSession error:', err);
+        return { success: false, message: 'Erreur réseau Wave' };
+    }
 }
 
-// --- VÉRIFICATION DE SIGNATURE WEBHOOK (optionnel — Wave API Business) ---
-// Utilisé si tu actives les webhooks Wave plus tard.
-// Wave envoie : Authorization: Wave {timestamp}.{hmac_signature}
-// hmac_signature = HMAC-SHA256(WAVE_WEBHOOK_SECRET, `${timestamp}.${rawBody}`)
+// ── Vérification de signature webhook ────────────────────────────────────────
+// Wave signe chaque requête avec :
+//   Authorization: Wave {timestamp}.{hmac_sha256(WAVE_WEBHOOK_SECRET, `${timestamp}.${rawBody}`)}
 
 export function verifyWaveWebhookSignature(
     authHeader: string,
-    rawBody:    string
+    rawBody:    string,
 ): boolean {
     try {
         const token     = authHeader.replace(/^Wave\s+/i, '');
@@ -69,14 +99,14 @@ export function verifyWaveWebhookSignature(
 
         return timingSafeEqual(
             Buffer.from(signature, 'hex'),
-            Buffer.from(expected,  'hex')
+            Buffer.from(expected,  'hex'),
         );
     } catch {
         return false;
     }
 }
 
-// --- TYPE DU PAYLOAD WEBHOOK WAVE (optionnel) ---
+// ── Type du payload webhook Wave ─────────────────────────────────────────────
 
 export interface WaveWebhookPayload {
     type: string;

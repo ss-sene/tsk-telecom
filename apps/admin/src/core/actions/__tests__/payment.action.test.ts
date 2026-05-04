@@ -7,16 +7,16 @@ const {
     mockPaymentCreate,
     mockPaymentUpdate,
     mockTransaction,
-    mockCreateWavePayLink,
+    mockCreateWaveCheckoutSession,
     mockCreateOrangeMoneyPayment,
 } = vi.hoisted(() => ({
-    mockVillageUpsert:            vi.fn(),
-    mockClientUpsert:             vi.fn(),
-    mockPaymentCreate:            vi.fn(),
-    mockPaymentUpdate:            vi.fn(),
-    mockTransaction:              vi.fn(),
-    mockCreateWavePayLink:        vi.fn(),
-    mockCreateOrangeMoneyPayment: vi.fn(),
+    mockVillageUpsert:               vi.fn(),
+    mockClientUpsert:                vi.fn(),
+    mockPaymentCreate:               vi.fn(),
+    mockPaymentUpdate:               vi.fn(),
+    mockTransaction:                 vi.fn(),
+    mockCreateWaveCheckoutSession:   vi.fn(),
+    mockCreateOrangeMoneyPayment:    vi.fn(),
 }));
 
 vi.mock('@/lib/env', () => ({}));
@@ -30,7 +30,7 @@ vi.mock('@/core/db/prisma', () => ({
 }));
 
 vi.mock('@/core/services/wave.service', () => ({
-    createWavePayLink: mockCreateWavePayLink,
+    createWaveCheckoutSession: mockCreateWaveCheckoutSession,
 }));
 
 vi.mock('@/core/services/orange-money.service', () => ({
@@ -88,10 +88,10 @@ describe('initiatePayment', () => {
 
     it('returns checkoutUrl for a valid WAVE payment', async () => {
         setupTransaction();
-        mockCreateWavePayLink.mockReturnValue({
+        mockCreateWaveCheckoutSession.mockResolvedValue({
             success:   true,
-            payUrl:    'https://pay.wave.com/m/tdk-telecom?amount=10000&session_id=cuid-abc',
-            sessionId: 'cuid-abc',
+            waveUrl:   'https://pay.wave.com/qr/cos_abc123',
+            sessionId: 'cos_abc123',
         });
 
         const result = await initiatePayment(VALID_WAVE_PAYLOAD);
@@ -101,15 +101,47 @@ describe('initiatePayment', () => {
         expect(result.checkoutUrl).toContain('wave.com');
         expect(result.internalRef).toBe('cuid-abc');
         expect(result.provider).toBe('WAVE');
-        expect(mockPaymentUpdate).not.toHaveBeenCalled();
+    });
+
+    it('stores the Wave session ID in providerRef after a successful session creation', async () => {
+        setupTransaction('c1', 'p1', 'ref-wave');
+        mockCreateWaveCheckoutSession.mockResolvedValue({
+            success:   true,
+            waveUrl:   'https://pay.wave.com/qr/cos_xyz',
+            sessionId: 'cos_xyz',
+        });
+
+        await initiatePayment(VALID_WAVE_PAYLOAD);
+
+        expect(mockPaymentUpdate).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: { id: 'p1' },
+                data:  expect.objectContaining({ providerRef: 'cos_xyz' }),
+            })
+        );
+    });
+
+    it('passes successUrl and errorUrl to the Wave service', async () => {
+        setupTransaction();
+        mockCreateWaveCheckoutSession.mockResolvedValue({
+            success: true, waveUrl: 'https://pay.wave.com/qr/x', sessionId: 'cos_x',
+        });
+
+        await initiatePayment(VALID_WAVE_PAYLOAD);
+
+        expect(mockCreateWaveCheckoutSession).toHaveBeenCalledWith(
+            expect.objectContaining({
+                internalRef: 'cuid-abc',
+                successUrl:  expect.stringContaining('payment/success'),
+                errorUrl:    expect.stringContaining('cancelled=1'),
+            })
+        );
     });
 
     it('uses amount 12000 (premium plan) for WAVE', async () => {
         setupTransaction('c2', 'p2', 'ref-premium');
-        mockCreateWavePayLink.mockReturnValue({
-            success: true,
-            payUrl:  'https://pay.wave.com/m/tdk-telecom?amount=12000&session_id=ref-premium',
-            sessionId: 'ref-premium',
+        mockCreateWaveCheckoutSession.mockResolvedValue({
+            success: true, waveUrl: 'https://pay.wave.com/qr/prem', sessionId: 'cos_prem',
         });
 
         const result = await initiatePayment({ ...VALID_WAVE_PAYLOAD, amount: 12000 });
@@ -123,7 +155,9 @@ describe('initiatePayment', () => {
     it('upserts a new village when villageId is OTHER', async () => {
         mockVillageUpsert.mockResolvedValue({ id: 'new-village-id' });
         setupTransaction();
-        mockCreateWavePayLink.mockReturnValue({ success: true, payUrl: 'https://pay.wave.com/m/x', sessionId: 'ref' });
+        mockCreateWaveCheckoutSession.mockResolvedValue({
+            success: true, waveUrl: 'https://pay.wave.com/qr/x', sessionId: 'cos_x',
+        });
 
         await initiatePayment({
             ...VALID_WAVE_PAYLOAD,
@@ -137,8 +171,6 @@ describe('initiatePayment', () => {
                 create: { titre: 'Touba sud' },
             })
         );
-
-        // The tx.client.upsert should receive the resolved village id
         expect(mockClientUpsert).toHaveBeenCalledWith(
             expect.objectContaining({
                 where:  { phone: '771234567' },
@@ -151,7 +183,9 @@ describe('initiatePayment', () => {
 
     it('marks payment FAILED and returns failure when Wave service errors', async () => {
         setupTransaction('c3', 'p3', 'ref-fail');
-        mockCreateWavePayLink.mockReturnValue({ success: false, message: 'WAVE_MERCHANT_ID manquant' });
+        mockCreateWaveCheckoutSession.mockResolvedValue({
+            success: false, message: 'WAVE_API_KEY non configuré',
+        });
 
         const result = await initiatePayment(VALID_WAVE_PAYLOAD);
 
@@ -169,9 +203,9 @@ describe('initiatePayment', () => {
     it('returns checkoutUrl for a valid ORANGE_MONEY payment', async () => {
         setupTransaction('c4', 'p4', 'ref-om');
         mockCreateOrangeMoneyPayment.mockResolvedValue({
-            success:      true,
-            paymentUrl:   'https://api.orange.com/pay/...',
-            notifToken:   'notif-token-xyz',
+            success:    true,
+            paymentUrl: 'https://api.orange.com/pay/...',
+            notifToken: 'notif-token-xyz',
         });
 
         const result = await initiatePayment(VALID_OM_PAYLOAD);
@@ -181,7 +215,6 @@ describe('initiatePayment', () => {
         expect(result.checkoutUrl).toContain('orange.com');
         expect(result.provider).toBe('ORANGE_MONEY');
         expect(result.internalRef).toBe('ref-om');
-        // providerRef should be stored
         expect(mockPaymentUpdate).toHaveBeenCalledWith(
             expect.objectContaining({
                 where: { id: 'p4' },

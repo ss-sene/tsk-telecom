@@ -1,107 +1,74 @@
 @import "tailwindcss";
 
-@variant dark (&:is(.dark *));
-
 /* ═══════════════════════════════════════════════════════════════════
    STATIC DESIGN TOKENS
    Valeurs fixes — génèrent des classes Tailwind utilitaires.
-   Ex : bg-brand, text-success, bg-card-white.
+   Ex : bg-brand, text-success, bg-surface-card.
 ═══════════════════════════════════════════════════════════════════ */
 @theme {
-  /* Palette brand */
-  --color-brand:         #1A3C9F;
-  --color-brand-hover:   #142E7B;
-  --color-brand-light:   #EEF2FF;
-  --color-brand-muted:   rgba(26, 60, 159, 0.10);  /* tint léger pour badges icône */
+  /* Palette brand — Steel Blue accent (dark mode) */
+  --color-brand:        #6FA3C8;   /* accent/CTA — 6.12:1 on page ✓ AA+        */
+  --color-brand-hover:  #89BAD4;   /* hover accent — 7.6:1 on page ✓ AAA       */
+  --color-brand-soft:   #4A7FA6;   /* icon bg — darker for overlays            */
+  --color-brand-light:  rgba(111, 163, 200, 0.15); /* brand highlight overlay  */
+  --color-brand-muted:  rgba(111, 163, 200, 0.08); /* very soft surface tint   */
 
-  /* Palette success */
-  --color-success:       #2ECA50;
-  --color-success-muted: rgba(46, 202, 80, 0.12);
-
-  /* Surfaces statiques (light mode explicite) */
-  --color-card:          #F9FAFB;   /* section alternée */
-  --color-card-white:    #ffffff;   /* carte blanche sur fond gris */
+  /* Statuts */
+  --color-success:       #4ADE80;   /* green-400 — visible on dark (5.25:1 card) ✓ AA */
+  --color-success-muted: rgba(74, 222, 128, 0.12);
 
   /* Typographie */
   --font-sans: var(--font-inter), Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   TOKENS SÉMANTIQUES — SOURCE CSS VARIABLES
-   Ces variables changent entre light et dark via la classe .dark.
-   Elles servent de source pour le thème inline ci-dessous.
+   TOKENS SÉMANTIQUES — TDK Dark Mode
 ═══════════════════════════════════════════════════════════════════ */
-
-/* ── Light mode ── */
 :root {
-  /* Surfaces — profondeur graduée (page → section → card → raised) */
-  --surface-page:    #ffffff;
-  --surface-section: #F9FAFB;
-  --surface-card:    #ffffff;
-  --surface-raised:  #ffffff;   /* carte surélevée, dropdown, popover */
+  /* Surfaces — hiérarchie 4 niveaux */
+  --surface-page:    #121A26;   /* Fond global — deep navy                     */
+  --surface-section: #1B263B;   /* Header, footer, sections alternées          */
+  --surface-card:    #2E4057;   /* Cartes, inputs, panneaux                    */
+  --surface-raised:  #374B68;   /* Cartes highlighted, hover states            */
+  --surface-overlay: rgba(111, 163, 200, 0.08); /* accent overlay discret     */
 
   /* Bordures */
-  --border-faint:    #F3F4F6;   /* séparateur très subtil */
-  --border-default:  #E5E7EB;   /* bordure standard */
-  --border-strong:   #D1D5DB;   /* bordure proéminente */
+  --border-subtle:  rgba(255, 255, 255, 0.05); /* filet de lumière — cartes au repos */
+  --border-faint:   #273849;   /* quasi invisible — séparateurs internes       */
+  --border-default: #4D6B88;   /* bordure standard — inputs, focus states      */
+  --border-strong:  #7A9CB8;   /* bordure accentuée — focus, hover (3.4:1 card) ✓ */
+  --border-brand:   rgba(111, 163, 200, 0.40); /* ring brand — focus states   */
 
-  /* Texte */
-  --text-base:       #111827;   /* primary — gris-900 */
-  --text-secondary:  #374151;   /* secondary — gris-700 */
-  --text-muted:      #6B7280;   /* muted — gris-500 */
-  --text-faint:      #9CA3AF;   /* très atténué — gris-400 */
+  /* Texte — hiérarchie sur fond sombre */
+  --text-base:      #D9E2EC;   /* Principal — 12.1:1 page / 7.1:1 card ✓ AAA  */
+  --text-secondary: #A8BBCC;   /* Corps — 8.2:1 page / 4.8:1 card ✓ AA        */
+  --text-muted:     #7A97AE;   /* Méta — 5.5:1 page / 4.6:1 section ✓ AA      */
+  --text-faint:     #4D6880;   /* Décoratif uniquement — non-AA                */
 
-  /* Ombres */
-  --shadow-sm:       0 1px 2px 0 rgba(0,0,0,.05);
-  --shadow-card:     0 1px 3px 0 rgba(0,0,0,.07), 0 1px 2px -1px rgba(0,0,0,.05);
-  --shadow-card-md:  0 4px 12px -2px rgba(0,0,0,.10), 0 2px 6px -2px rgba(0,0,0,.06);
-  --shadow-brand:    0 4px 20px -4px rgba(26,60,159,.22);
-}
-
-/* ── Dark mode ── */
-.dark {
-  /* Surfaces — graduées de la plus sombre à la plus claire */
-  --surface-page:    #0F172A;   /* slate-900 — niveau le plus profond */
-  --surface-section: #131E30;   /* entre slate-900 et slate-800 */
-  --surface-card:    #1E293B;   /* slate-800 — card standard */
-  --surface-raised:  #263347;   /* légèrement plus clair — dropdowns, popovers */
-
-  /* Bordures */
-  --border-faint:    #1a2744;   /* très subtil */
-  --border-default:  #334155;   /* slate-700 — standard */
-  --border-strong:   #475569;   /* slate-600 — prominent */
-
-  /* Texte */
-  --text-base:       #F1F5F9;   /* slate-100 */
-  --text-secondary:  #CBD5E1;   /* slate-300 */
-  --text-muted:      #94A3B8;   /* slate-400 */
-  --text-faint:      #64748B;   /* slate-500 */
-
-  /* Ombres (atténuées en dark — le contexte sombre réduit leur impact) */
-  --shadow-sm:       0 1px 2px 0 rgba(0,0,0,.25);
-  --shadow-card:     0 1px 3px 0 rgba(0,0,0,.30), 0 1px 2px -1px rgba(0,0,0,.20);
-  --shadow-card-md:  0 4px 12px -2px rgba(0,0,0,.40), 0 2px 6px -2px rgba(0,0,0,.25);
-  --shadow-brand:    0 4px 20px -4px rgba(26,60,159,.35);
+  /* Ombres — teintées noir, portée sombre */
+  --shadow-sm:      0 1px 3px rgba(0, 0, 0, 0.25);
+  --shadow-card:    0 2px 12px rgba(0, 0, 0, 0.25),
+                    0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-card-md: 0 6px 28px rgba(0, 0, 0, 0.35),
+                    0 2px 8px rgba(0, 0, 0, 0.20);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   THÈME INLINE — Classes Tailwind dynamiques (suivent .dark)
-   Génère : bg-surface-page, bg-surface-card, text-text-base, etc.
-   Ces classes s'adaptent automatiquement au dark mode.
+   THÈME INLINE — Classes Tailwind dynamiques
 ═══════════════════════════════════════════════════════════════════ */
 @theme inline {
-  /* Surfaces */
   --color-surface-page:    var(--surface-page);
   --color-surface-section: var(--surface-section);
   --color-surface-card:    var(--surface-card);
   --color-surface-raised:  var(--surface-raised);
+  --color-surface-overlay: var(--surface-overlay);
 
-  /* Bordures */
+  --color-border-subtle:   var(--border-subtle);
   --color-border-faint:    var(--border-faint);
   --color-border-default:  var(--border-default);
   --color-border-strong:   var(--border-strong);
+  --color-border-brand:    var(--border-brand);
 
-  /* Texte sémantique */
   --color-text-base:       var(--text-base);
   --color-text-secondary:  var(--text-secondary);
   --color-text-muted:      var(--text-muted);
@@ -116,9 +83,8 @@ body {
   color: var(--text-base);
 }
 
-/* Transition douce lors du basculement de thème */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    transition: background-color 200ms ease, color 200ms ease;
-  }
+@keyframes successIn {
+  from { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.1); }
+  to   { transform: scale(1);   opacity: 1; }
 }

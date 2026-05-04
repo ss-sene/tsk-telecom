@@ -8,13 +8,14 @@ import { PublicFooter }  from '@/app/PublicFooter';
 import { COMPANY }       from '@/lib/company';
 
 export const metadata: Metadata = {
-    title:       'Starlink au Sénégal — Installation & Abonnements',
-    description: 'TDK Telecom, partenaire officiel Starlink au Sénégal. Installation par techniciens locaux. Abonnements dès 22 000 F/mois. Paiement Wave ou Orange Money.',
+    title:       'Starlink Sénégal — Installation Internet Satellite | Partenaire Officiel',
+    description: 'TDK Telecom, partenaire officiel Starlink au Sénégal. Internet satellite partout, même en zone rurale. Abonnements dès 22 000 F/mois. Installation par nos techniciens. Paiement Wave ou Orange Money.',
     alternates:  { canonical: '/starlink' },
     openGraph: {
-        title:       'Starlink au Sénégal — Installation & Abonnements | TDK Telecom',
-        description: 'Partenaire Starlink officiel. Internet satellite partout au Sénégal. Dès 22 000 F/mois, payable via Wave ou Orange Money.',
+        title:       'Starlink au Sénégal — Installation par Techniciens Locaux | TDK Telecom',
+        description: 'Partenaire officiel Starlink. Internet satellite partout au Sénégal. Dès 22 000 F/mois. Installation & activation par nos équipes. Wave ou Orange Money.',
         url:         '/starlink',
+        images: [{ url: '/og-image.png', width: 1424, height: 752, alt: 'Starlink Sénégal — TDK Telecom' }],
     },
 };
 
@@ -201,6 +202,46 @@ const FAQ_JSON_LD = {
     })),
 };
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tdktelecom.sn';
+
+const BREADCRUMB_LD = {
+    '@context':        'https://schema.org',
+    '@type':           'BreadcrumbList',
+    'itemListElement': [
+        { '@type': 'ListItem', 'position': 1, 'name': 'Accueil',  'item': `${APP_URL}/`        },
+        { '@type': 'ListItem', 'position': 2, 'name': 'Starlink', 'item': `${APP_URL}/starlink` },
+    ],
+};
+
+const STARLINK_SERVICE_LD = {
+    '@context':    'https://schema.org',
+    '@type':       'Service',
+    '@id':         `${APP_URL}/starlink#service`,
+    'name':        'Installation Starlink au Sénégal',
+    'description': "TDK Telecom installe et active Starlink partout au Sénégal. Internet satellite haut débit, même en zone rurale. Abonnements dès 22 000 F/mois.",
+    'serviceType': 'Internet Service Provider — Satellite',
+    'provider':    { '@id': `${APP_URL}/#organization` },
+    'areaServed':  { '@type': 'Country', 'name': 'Sénégal' },
+    'hasOfferCatalog': {
+        '@type': 'OfferCatalog',
+        'name':  'Abonnements Starlink',
+        'itemListElement': STARLINK_PLANS.map((plan, i) => ({
+            '@type':    'Offer',
+            'position': i + 1,
+            'name':     `Starlink ${plan.name}`,
+            'price':    plan.priceMonthly,
+            'priceCurrency': 'XOF',
+            'priceSpecification': {
+                '@type':            'UnitPriceSpecification',
+                'price':            plan.priceMonthly,
+                'priceCurrency':    'XOF',
+                'unitText':         'month',
+                'billingIncrement': 1,
+            },
+        })),
+    },
+};
+
 const TRUST = [
     { icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', label: 'Installation garantie' },
     { icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', label: 'Techniciens locaux' },
@@ -213,16 +254,15 @@ const TRUST = [
 export default function StarlinkPage() {
 
     return (
-        <div className="min-h-screen bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">
+        <div className="min-h-screen bg-surface-page">
 
             {/* ── Header ── */}
             <PublicHeader />
 
             <main>
 
-                {/* ── HERO ── */}
+                {/* ── HERO — section intentionnellement sombre (branding spatial Starlink) ── */}
                 <section className="relative overflow-hidden bg-[#080E2A] px-5 py-20 sm:py-28 lg:py-36 text-white">
-                    {/* Fond étoilé via gradients radiaux */}
                     <div className="pointer-events-none absolute inset-0" aria-hidden="true">
                         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(26,60,159,.55),transparent)]" />
                         <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-brand/10 blur-3xl" />
@@ -230,9 +270,8 @@ export default function StarlinkPage() {
                     </div>
 
                     <div className="relative mx-auto max-w-3xl text-center">
-                        {/* Eyebrow */}
                         <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-semibold text-white/80 backdrop-blur-sm">
-                            <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" aria-hidden="true" />
                             Internet par satellite — disponible partout au Sénégal
                         </div>
 
@@ -253,10 +292,10 @@ export default function StarlinkPage() {
                                 href={CONTACT_DEVIS}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-bold text-white hover:bg-brand-hover transition-colors shadow-[0_4px_20px_rgba(26,60,159,.40)]"
+                                className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors"
                             >
                                 Demander un devis
-                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                 </svg>
                             </a>
@@ -268,11 +307,10 @@ export default function StarlinkPage() {
                             </a>
                         </div>
 
-                        {/* Trust row */}
                         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-white/50">
                             {TRUST.map(({ icon, label }) => (
                                 <span key={label} className="flex items-center gap-1.5">
-                                    <svg className="h-3.5 w-3.5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg className="h-3.5 w-3.5 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} />
                                     </svg>
                                     {label}
@@ -283,14 +321,14 @@ export default function StarlinkPage() {
                 </section>
 
                 {/* ── AVANTAGES ── */}
-                <section className="bg-white dark:bg-slate-900 px-5 py-20 sm:py-24">
+                <section className="bg-surface-page px-5 py-20 sm:py-24">
                     <div className="mx-auto max-w-6xl">
                         <div className="text-center mb-14">
                             <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Pourquoi Starlink</p>
-                            <h2 className="text-3xl font-black tracking-[-0.03em] text-gray-900 dark:text-slate-50 sm:text-4xl">
+                            <h2 className="text-3xl font-black tracking-[-0.03em] text-text-base sm:text-4xl">
                                 Internet fiable, même en zone rurale
                             </h2>
-                            <p className="mt-3 text-base text-gray-500 dark:text-slate-400 max-w-[46ch] mx-auto">
+                            <p className="mt-3 text-base text-text-muted max-w-[46ch] mx-auto">
                                 La technologie satellite de SpaceX, installée et gérée localement par les équipes TDK Telecom.
                             </p>
                         </div>
@@ -299,16 +337,16 @@ export default function StarlinkPage() {
                             {AVANTAGES.map(a => (
                                 <div
                                     key={a.title}
-                                    className="flex gap-4 rounded-2xl bg-gray-50 dark:bg-slate-800/50 p-6 ring-1 ring-gray-100 dark:ring-slate-700/60"
+                                    className="flex gap-4 rounded-2xl bg-surface-section p-6 ring-1 ring-border-faint"
                                 >
-                                    <div className="shrink-0 h-11 w-11 flex items-center justify-center rounded-xl bg-brand-muted dark:bg-brand/15 ring-1 ring-brand/10">
-                                        <svg className="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <div className="shrink-0 h-11 w-11 flex items-center justify-center rounded-xl bg-brand-muted ring-1 ring-brand/10">
+                                        <svg className="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={a.icon} />
                                         </svg>
                                     </div>
                                     <div>
-                                        <h3 className="text-sm font-extrabold text-gray-900 dark:text-slate-100 mb-1">{a.title}</h3>
-                                        <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">{a.desc}</p>
+                                        <h3 className="text-sm font-extrabold text-text-base mb-1">{a.title}</h3>
+                                        <p className="text-sm text-text-muted leading-relaxed">{a.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -317,14 +355,14 @@ export default function StarlinkPage() {
                 </section>
 
                 {/* ── ABONNEMENTS STARLINK ── */}
-                <section id="offres" className="bg-gray-50 dark:bg-slate-800/30 px-5 py-20 sm:py-24 scroll-mt-20">
+                <section id="offres" className="bg-surface-section px-5 py-20 sm:py-24 scroll-mt-20">
                     <div className="mx-auto max-w-6xl">
                         <div className="text-center mb-14">
                             <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Abonnements</p>
-                            <h2 className="text-3xl font-black tracking-[-0.03em] text-gray-900 dark:text-slate-50 sm:text-4xl">
+                            <h2 className="text-3xl font-black tracking-[-0.03em] text-text-base sm:text-4xl">
                                 Choisissez votre formule Starlink
                             </h2>
-                            <p className="mt-3 text-base text-gray-500 dark:text-slate-400 max-w-[46ch] mx-auto">
+                            <p className="mt-3 text-base text-text-muted max-w-[46ch] mx-auto">
                                 Résidentiel pour les particuliers, Prioritaire Local pour les PME, Mobile pour les professionnels nomades.
                             </p>
                         </div>
@@ -335,38 +373,38 @@ export default function StarlinkPage() {
                                     key={plan.id}
                                     className={`relative flex flex-col rounded-2xl p-6 ring-2 ${
                                         plan.highlighted
-                                            ? 'ring-brand bg-white dark:bg-slate-800 shadow-xl shadow-brand/10 dark:shadow-[0_8px_32px_-4px_rgba(26,60,159,.28)]'
-                                            : 'ring-gray-200 dark:ring-slate-700 bg-white dark:bg-slate-800 shadow-sm'
+                                            ? 'ring-brand bg-surface-card shadow-[var(--shadow-card-md)]'
+                                            : 'ring-border-default bg-surface-card shadow-[var(--shadow-card)]'
                                     }`}
                                 >
                                     {plan.highlighted && (
-                                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-4 py-1 text-xs font-bold text-white shadow-sm">
+                                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-4 py-1 text-xs font-bold text-[#121A26] shadow-sm">
                                             Le plus demandé
                                         </div>
                                     )}
                                     {plan.badge && !plan.highlighted && (
-                                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-slate-700 px-4 py-1 text-xs font-bold text-white shadow-sm">
+                                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand px-4 py-1 text-xs font-bold text-[#121A26] shadow-sm">
                                             {plan.badge}
                                         </div>
                                     )}
 
                                     <div className="flex-1">
-                                        <p className="text-xs font-semibold text-gray-400 dark:text-slate-500 mb-1">{plan.target}</p>
-                                        <h3 className={`text-base font-extrabold mb-4 ${plan.highlighted ? 'text-brand' : 'text-gray-900 dark:text-slate-100'}`}>
+                                        <p className="text-xs font-semibold text-text-faint mb-1">{plan.target}</p>
+                                        <h3 className={`text-base font-extrabold mb-4 ${plan.highlighted ? 'text-brand' : 'text-text-base'}`}>
                                             {plan.name}
                                         </h3>
 
                                         <div className="mb-5">
-                                            <span className="text-2xl font-black text-gray-900 dark:text-slate-50">
+                                            <span className="text-2xl font-black text-text-base">
                                                 {plan.priceMonthly.toLocaleString('fr-FR')} F
                                             </span>
-                                            <span className="text-sm text-gray-400 dark:text-slate-500">/mois</span>
+                                            <span className="text-sm text-text-faint">/mois</span>
                                         </div>
 
                                         <ul className="space-y-2 mb-6">
                                             {plan.features.map(f => (
-                                                <li key={f} className="flex items-start gap-2 text-sm text-gray-600 dark:text-slate-300">
-                                                    <svg className="h-4 w-4 flex-none text-success mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                                <li key={f} className="flex items-start gap-2 text-sm text-text-muted">
+                                                    <svg className="h-4 w-4 flex-none text-success mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                     </svg>
                                                     {f}
@@ -381,12 +419,12 @@ export default function StarlinkPage() {
                                         rel="noopener noreferrer"
                                         className={`flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-bold transition-colors ${
                                             plan.highlighted
-                                                ? 'bg-brand text-white hover:bg-brand-hover shadow-[0_2px_8px_rgba(26,60,159,.35)]'
-                                                : 'border-2 border-gray-200 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:border-brand hover:text-brand dark:hover:border-brand dark:hover:text-brand'
+                                                ? 'bg-brand text-[#121A26] hover:bg-brand-hover'
+                                                : 'border-2 border-border-default text-text-secondary hover:border-brand hover:text-brand'
                                         }`}
                                     >
                                         Souscrire
-                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                         </svg>
                                     </a>
@@ -394,75 +432,88 @@ export default function StarlinkPage() {
                             ))}
                         </div>
 
-                        <p className="mt-8 text-center text-xs text-gray-400 dark:text-slate-500">
+                        <p className="mt-8 text-center text-xs text-text-faint">
                             Tarifs officiels Starlink SpaceX au Sénégal. Frais d'installation TDK Telecom en sus — contactez-nous pour un devis complet.
                         </p>
                     </div>
                 </section>
 
                 {/* ── KITS & ÉQUIPEMENTS ── */}
-                <section className="bg-white dark:bg-slate-900 px-5 py-16 sm:py-20">
+                <section className="bg-surface-page px-5 py-16 sm:py-20">
                     <div className="mx-auto max-w-3xl">
                         <div className="text-center mb-10">
                             <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Équipements</p>
-                            <h2 className="text-2xl font-black tracking-[-0.03em] text-gray-900 dark:text-slate-50 sm:text-3xl">
+                            <h2 className="text-2xl font-black tracking-[-0.03em] text-text-base sm:text-3xl">
                                 Kits Starlink disponibles
                             </h2>
-                            <p className="mt-3 text-sm text-gray-500 dark:text-slate-400 max-w-[44ch] mx-auto">
+                            <p className="mt-3 text-sm text-text-muted max-w-[44ch] mx-auto">
                                 Frais de transport : 14 000 F. Installation par nos techniciens incluse dans le devis.
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             {KITS.map(kit => (
-                                <div key={kit.id} className="rounded-2xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 p-6">
+                                <div key={kit.id} className="rounded-2xl border border-border-default bg-surface-section p-6">
                                     <div className="flex items-start justify-between gap-3 mb-3">
-                                        <h3 className="text-base font-extrabold text-gray-900 dark:text-slate-100">{kit.name}</h3>
+                                        <h3 className="text-base font-extrabold text-text-base">{kit.name}</h3>
                                         <span className="shrink-0 text-base font-black text-brand">
                                             {kit.price.toLocaleString('fr-FR')} F
                                         </span>
                                     </div>
-                                    <p className="text-sm text-gray-500 dark:text-slate-400 mb-4 leading-relaxed">{kit.desc}</p>
+                                    <p className="text-sm text-text-muted mb-4 leading-relaxed">{kit.desc}</p>
                                     <ul className="space-y-1.5 mb-4">
                                         {kit.features.map(f => (
-                                            <li key={f} className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
-                                                <svg className="h-3.5 w-3.5 flex-none text-success" fill="currentColor" viewBox="0 0 20 20">
+                                            <li key={f} className="flex items-center gap-2 text-sm text-text-muted">
+                                                <svg className="h-3.5 w-3.5 flex-none text-success" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                                 </svg>
                                                 {f}
                                             </li>
                                         ))}
                                     </ul>
-                                    <p className="text-xs text-gray-400 dark:text-slate-500">Compatible : {kit.compatible}</p>
+                                    <p className="text-xs text-text-faint">Compatible : {kit.compatible}</p>
                                 </div>
                             ))}
+                        </div>
+
+                        <div className="mt-6 text-center">
+                            <p className="text-xs text-text-faint mb-2">Besoin d&apos;autres équipements réseau ?</p>
+                            <Link
+                                href="/boutique"
+                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand hover:text-brand-hover transition-colors"
+                            >
+                                Voir tous les équipements en boutique
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                            </Link>
                         </div>
                     </div>
                 </section>
 
                 {/* ── COMMENT ÇA MARCHE ── */}
-                <section id="comment-ca-marche" className="bg-white dark:bg-slate-900 px-5 py-20 sm:py-24 scroll-mt-20">
+                <section id="comment-ca-marche" className="bg-surface-section px-5 py-20 sm:py-24 scroll-mt-20">
                     <div className="mx-auto max-w-6xl">
                         <div className="text-center mb-14">
                             <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Installation</p>
-                            <h2 className="text-3xl font-black tracking-[-0.03em] text-gray-900 dark:text-slate-50 sm:text-4xl">
+                            <h2 className="text-3xl font-black tracking-[-0.03em] text-text-base sm:text-4xl">
                                 Comment ça marche
                             </h2>
-                            <p className="mt-3 text-base text-gray-500 dark:text-slate-400 max-w-[44ch] mx-auto">
+                            <p className="mt-3 text-base text-text-muted max-w-[44ch] mx-auto">
                                 Du premier contact à la connexion active, nos techniciens vous accompagnent à chaque étape.
                             </p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
-                            <div className="hidden md:block absolute top-[52px] left-[calc(25%+24px)] right-[calc(25%+24px)] h-px bg-gray-200 dark:bg-slate-700/60 z-0" />
+                            <div className="hidden md:block absolute top-[52px] left-[calc(25%+24px)] right-[calc(25%+24px)] h-px bg-border-default z-0" aria-hidden="true" />
 
                             {STEPS.map(step => (
-                                <div key={step.num} className="relative z-10 flex flex-col rounded-2xl bg-gray-50 dark:bg-slate-800 p-6 ring-1 ring-gray-100 dark:ring-slate-700/60 shadow-sm">
-                                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-base font-black text-white shrink-0 shadow-[0_2px_8px_rgba(26,60,159,.30)]">
+                                <div key={step.num} className="relative z-10 flex flex-col rounded-2xl bg-surface-card p-6 ring-1 ring-border-faint shadow-[var(--shadow-card)]">
+                                    <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-brand text-base font-black text-[#121A26] shrink-0">
                                         {step.num}
                                     </div>
-                                    <h3 className="text-sm font-extrabold text-gray-900 dark:text-slate-100 mb-2">{step.title}</h3>
-                                    <p className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">{step.desc}</p>
+                                    <h3 className="text-sm font-extrabold text-text-base mb-2">{step.title}</h3>
+                                    <p className="text-sm text-text-muted leading-relaxed">{step.desc}</p>
                                 </div>
                             ))}
                         </div>
@@ -470,35 +521,35 @@ export default function StarlinkPage() {
                 </section>
 
                 {/* ── PAIEMENT LOCAL ── */}
-                <section className="bg-gray-50 dark:bg-slate-800/30 px-5 py-16 sm:py-20">
+                <section className="bg-surface-page px-5 py-16 sm:py-20">
                     <div className="mx-auto max-w-3xl text-center">
                         <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Paiement</p>
-                        <h2 className="text-2xl font-black tracking-[-0.03em] text-gray-900 dark:text-slate-50 sm:text-3xl mb-4">
+                        <h2 className="text-2xl font-black tracking-[-0.03em] text-text-base sm:text-3xl mb-4">
                             Payez depuis votre téléphone
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-slate-400 max-w-[42ch] mx-auto mb-8 leading-relaxed">
+                        <p className="text-sm text-text-muted max-w-[42ch] mx-auto mb-8 leading-relaxed">
                             Pas de carte bancaire internationale requise. Réglez votre abonnement mensuel Starlink directement via Wave ou Orange Money.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             {/* Wave */}
-                            <div className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-4 shadow-sm min-w-[160px]">
+                            <div className="flex items-center gap-3 rounded-2xl border border-border-default bg-surface-card px-6 py-4 shadow-[var(--shadow-card)] min-w-[160px]">
                                 <div className="h-10 w-10 rounded-xl bg-[#1BA8E0]/10 flex items-center justify-center shrink-0">
                                     <span className="text-[#1BA8E0] font-black text-sm">W</span>
                                 </div>
                                 <div className="text-left">
-                                    <p className="text-sm font-bold text-gray-900 dark:text-slate-100">Wave</p>
-                                    <p className="text-xs text-gray-400 dark:text-slate-500">Paiement instantané</p>
+                                    <p className="text-sm font-bold text-text-base">Wave</p>
+                                    <p className="text-xs text-text-faint">Paiement instantané</p>
                                 </div>
                             </div>
                             {/* Orange Money */}
-                            <div className="flex items-center gap-3 rounded-2xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-6 py-4 shadow-sm min-w-[160px]">
+                            <div className="flex items-center gap-3 rounded-2xl border border-border-default bg-surface-card px-6 py-4 shadow-[var(--shadow-card)] min-w-[160px]">
                                 <div className="h-10 w-10 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
                                     <span className="text-orange-500 font-black text-sm">OM</span>
                                 </div>
                                 <div className="text-left">
-                                    <p className="text-sm font-bold text-gray-900 dark:text-slate-100">Orange Money</p>
-                                    <p className="text-xs text-gray-400 dark:text-slate-500">Paiement instantané</p>
+                                    <p className="text-sm font-bold text-text-base">Orange Money</p>
+                                    <p className="text-xs text-text-faint">Paiement instantané</p>
                                 </div>
                             </div>
                         </div>
@@ -506,11 +557,11 @@ export default function StarlinkPage() {
                 </section>
 
                 {/* ── FAQ ── */}
-                <section id="faq" className="bg-white dark:bg-slate-900 px-5 py-20 sm:py-24 scroll-mt-20">
+                <section id="faq" className="bg-surface-section px-5 py-20 sm:py-24 scroll-mt-20">
                     <div className="mx-auto max-w-2xl">
                         <div className="text-center mb-14">
                             <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Questions fréquentes</p>
-                            <h2 className="text-3xl font-black tracking-[-0.03em] text-gray-900 dark:text-slate-50 sm:text-4xl">
+                            <h2 className="text-3xl font-black tracking-[-0.03em] text-text-base sm:text-4xl">
                                 Tout ce que vous devez savoir
                             </h2>
                         </div>
@@ -519,17 +570,23 @@ export default function StarlinkPage() {
                             {FAQ.map((item, i) => (
                                 <details
                                     key={i}
-                                    className="group rounded-2xl border border-gray-100 dark:border-slate-700/60 bg-gray-50 dark:bg-slate-800/50 transition-all open:bg-white dark:open:bg-slate-800 open:border-gray-200 dark:open:border-slate-700 open:shadow-sm focus-within:ring-2 focus-within:ring-brand/30"
+                                    className="group rounded-2xl border border-border-faint bg-surface-card transition-all open:border-border-default open:shadow-[var(--shadow-card)] focus-within:ring-2 focus-within:ring-brand/30"
                                 >
                                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 select-none">
-                                        <span className="text-sm font-semibold text-gray-800 dark:text-slate-100">{item.q}</span>
-                                        <span className="shrink-0 flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 dark:bg-slate-700 group-open:bg-brand-light dark:group-open:bg-brand/20 transition-colors">
-                                            <svg className="h-4 w-4 text-gray-400 dark:text-slate-500 group-open:text-brand transition-colors group-open:rotate-45 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                                        <span className="text-sm font-semibold text-text-base">{item.q}</span>
+                                        <span className="shrink-0 flex h-7 w-7 items-center justify-center rounded-lg bg-surface-section group-open:bg-brand-light transition-colors">
+                                            <svg
+                                                className="h-4 w-4 text-text-faint group-open:text-brand group-open:rotate-180 transition-transform duration-200"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                aria-hidden="true"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </span>
                                     </summary>
-                                    <p className="px-5 pb-5 pt-1 text-sm text-gray-500 dark:text-slate-400 leading-relaxed">
+                                    <p className="px-5 pb-5 pt-1 text-sm text-text-muted leading-relaxed">
                                         {item.a}
                                     </p>
                                 </details>
@@ -539,29 +596,29 @@ export default function StarlinkPage() {
                 </section>
 
                 {/* ── CTA FINALE ── */}
-                <section className="bg-brand px-5 py-16 sm:py-20">
+                <section className="bg-surface-section px-5 py-16 sm:py-20">
                     <div className="mx-auto max-w-2xl text-center">
-                        <h2 className="text-3xl font-black tracking-[-0.03em] text-white sm:text-4xl mb-4">
+                        <h2 className="text-3xl font-black tracking-[-0.03em] text-text-base sm:text-4xl mb-4">
                             Prêt à vous connecter ?
                         </h2>
-                        <p className="text-base text-white/75 max-w-[38ch] mx-auto mb-8 leading-relaxed">
-                            Contactez notre équipe pour un devis gratuit et une évaluation de votre site d'installation.
+                        <p className="text-base text-text-secondary max-w-[38ch] mx-auto mb-8 leading-relaxed">
+                            Contactez notre équipe pour un devis gratuit et une évaluation de votre site d&apos;installation.
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                             <a
                                 href={CONTACT_DEVIS}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-brand hover:bg-brand-light transition-colors shadow-sm"
+                                className="inline-flex items-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors shadow-sm"
                             >
                                 Demander un devis gratuit
-                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                 </svg>
                             </a>
                             <Link
                                 href="/"
-                                className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+                                className="inline-flex items-center gap-2 rounded-xl border border-border-default bg-transparent px-6 py-3 text-sm font-semibold text-text-secondary hover:bg-surface-raised transition-colors"
                             >
                                 Voir nos forfaits Internet
                             </Link>
@@ -572,6 +629,14 @@ export default function StarlinkPage() {
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_JSON_LD) }}
+                />
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMB_LD) }}
+                />
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(STARLINK_SERVICE_LD) }}
                 />
             </main>
 
