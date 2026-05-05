@@ -1,4 +1,8 @@
 // apps/admin/src/app/admin/layout.tsx
+// Force dynamic rendering for the entire /admin segment — pages query the database
+// at request time and must never be statically pre-rendered at build time.
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { logout } from '@/core/actions/auth.action';
