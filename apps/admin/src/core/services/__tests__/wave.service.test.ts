@@ -121,16 +121,18 @@ describe('createWaveCheckoutSession', () => {
     });
 });
 
-// ── verifyWaveWebhookSignature ───────────────────────────────────────────────
+// ── verifyWaveWebhookSignature (SIGNING_SECRET) ──────────────────────────────
+// Wave envoie : Wave-Signature: t={timestamp},v1={hmac_sha256}
+// Payload signé : timestamp + rawBody (sans séparateur)
 
 describe('verifyWaveWebhookSignature', () => {
     const SECRET = 'test-webhook-secret';
 
     function buildHeader(timestamp: string, body: string): string {
         const sig = createHmac('sha256', SECRET)
-            .update(`${timestamp}.${body}`)
+            .update(timestamp + body)           // pas de séparateur
             .digest('hex');
-        return `Wave ${timestamp}.${sig}`;
+        return `t=${timestamp},v1=${sig}`;      // format SIGNING_SECRET
     }
 
     beforeEach(() => {
@@ -157,16 +159,16 @@ describe('verifyWaveWebhookSignature', () => {
     it('rejects a tampered signature', () => {
         const body   = JSON.stringify({ type: 'checkout.session.completed' });
         const ts     = '1700000000';
-        const header = `Wave ${ts}.${'aa'.repeat(32)}`;
+        const header = `t=${ts},v1=${'aa'.repeat(32)}`;
         expect(verifyWaveWebhookSignature(header, body)).toBe(false);
     });
 
-    it('rejects a malformed header (no dot)', () => {
-        expect(verifyWaveWebhookSignature('Wave invalidsignature', '{}')).toBe(false);
+    it('rejects a malformed header (missing t= or v1=)', () => {
+        expect(verifyWaveWebhookSignature('invalidsignature', '{}')).toBe(false);
     });
 
-    it('returns false on any exception (empty secret, etc.)', () => {
+    it('returns false when WAVE_WEBHOOK_SECRET is missing', () => {
         vi.stubEnv('WAVE_WEBHOOK_SECRET', '');
-        expect(verifyWaveWebhookSignature('Wave 123.abc', '{}')).toBe(false);
+        expect(verifyWaveWebhookSignature('t=123,v1=abc', '{}')).toBe(false);
     });
 });

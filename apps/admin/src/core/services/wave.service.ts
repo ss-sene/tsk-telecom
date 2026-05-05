@@ -95,22 +95,30 @@ export async function createWaveCheckoutSession(
     }
 }
 
-// ── Vérification de signature webhook ────────────────────────────────────────
-// Wave signe chaque requête avec :
-//   Authorization: Wave {timestamp}.{hmac_sha256(WAVE_WEBHOOK_SECRET, `${timestamp}.${rawBody}`)}
+// ── Vérification de signature webhook (stratégie SIGNING_SECRET) ─────────────
+// Wave envoie le header : Wave-Signature: t={timestamp},v1={hmac_sha256}
+// Le payload signé est : `${timestamp}${rawBody}` (sans séparateur)
+// Même algorithme que la signature des requêtes sortantes.
 
 export function verifyWaveWebhookSignature(
-    authHeader: string,
-    rawBody:    string,
+    waveSignatureHeader: string,
+    rawBody:             string,
 ): boolean {
     try {
-        const token     = authHeader.replace(/^Wave\s+/i, '');
-        const dotIdx    = token.indexOf('.');
-        const timestamp = token.slice(0, dotIdx);
-        const signature = token.slice(dotIdx + 1);
+        const secret = process.env.WAVE_WEBHOOK_SECRET;
+        if (!secret) return false;
 
-        const expected = createHmac('sha256', process.env.WAVE_WEBHOOK_SECRET!)
-            .update(`${timestamp}.${rawBody}`)
+        // Parse "t={timestamp},v1={signature}"
+        const parts     = Object.fromEntries(
+            waveSignatureHeader.split(',').map(p => p.split('=')),
+        ) as Record<string, string>;
+        const timestamp = parts['t'];
+        const signature = parts['v1'];
+
+        if (!timestamp || !signature) return false;
+
+        const expected = createHmac('sha256', secret)
+            .update(timestamp + rawBody)
             .digest('hex');
 
         return timingSafeEqual(
@@ -122,15 +130,34 @@ export function verifyWaveWebhookSignature(
     }
 }
 
-// ── Type du payload webhook Wave ─────────────────────────────────────────────
+// ── Types des payloads webhook Wave ──────────────────────────────────────────
+//
+// checkout.session.completed     — paiement confirmé via session Checkout
+// checkout.session.payment_failed — paiement échoué ou session expirée
+// merchant.payment_received      — paiement direct au marchand (hors Checkout)
+//   → client_reference optionnel : absent si le client n'a pas utilisé le lien de session
 
-export interface WaveWebhookPayload {
-    type: string;
+export interface WaveCheckoutEventPayload {
+    type: 'checkout.session.completed' | 'checkout.session.payment_failed';
     data: {
-        id:               string;
-        client_reference: string;
-        payment_status:   'succeeded' | 'cancelled' | 'processing';
+        id:               string;   // ID de session Wave (cos_xxx)
+        client_reference: string;   // internalRef de notre Payment
+        payment_status:   'succeeded' | 'cancelled' | 'processing' | 'failed';
         amount:           string;
         currency:         string;
     };
 }
+
+export interface WaveMerchantPaymentPayload {
+    type: 'merchant.payment_received';
+    data: {
+        id:                string;   // ID de transaction Wave (pay_xxx)
+        client_reference?: string;   // présent uniquement si lié à une session Checkout
+        amount:            string;
+        currency:          string;
+    };
+}
+
+export type WaveWebhookPayload =
+    | WaveCheckoutEventPayload
+    | WaveMerchantPaymentPayload;

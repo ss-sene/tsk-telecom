@@ -17,6 +17,7 @@ jobs:
       ADMIN_SECRET_TOKEN:            ${{ secrets.ADMIN_SECRET_TOKEN }}
       NEXT_PUBLIC_APP_URL:           https://tdktelecom.sn
       WAVE_API_KEY:                  dummy
+      WAVE_SIGNING_SECRET:           dummy-signing-secret-32chars-long
       WAVE_WEBHOOK_SECRET:           dummy-webhook-secret-32chars-long
       ORANGE_MONEY_API_KEY:          dummy
       ORANGE_MONEY_MERCHANT_KEY:     dummy
@@ -27,8 +28,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node
         uses: actions/setup-node@v4

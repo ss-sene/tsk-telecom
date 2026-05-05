@@ -7,9 +7,9 @@
 // Returns: { success, checkoutUrl?, internalRef?, provider?, error? }
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { initiatePayment }           from '@/core/actions/payment.action';
 
 export async function POST(req: NextRequest) {
     let body: unknown;
@@ -22,6 +22,9 @@ export async function POST(req: NextRequest) {
         );
     }
 
+    // Dynamic import : le module payment.action (et lib/env qu'il importe) est chargé
+    // uniquement à la première requête (runtime), jamais pendant le build Next.js.
+    const { initiatePayment } = await import('@/core/actions/payment.action');
     const result = await initiatePayment(body);
 
     if (!result.success) {
