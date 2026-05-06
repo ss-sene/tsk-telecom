@@ -120,7 +120,7 @@ describe('InitiatePaymentSchema', () => {
         });
 
         it('rejects missing villageId', () => {
-            const { villageId: _, ...rest } = VALID_BASE;
+            const { villageId: _villageId, ...rest } = VALID_BASE;
             const result = InitiatePaymentSchema.safeParse(rest);
             expect(result.success).toBe(false);
         });

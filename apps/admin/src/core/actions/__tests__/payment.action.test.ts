@@ -70,7 +70,7 @@ describe('initiatePayment', () => {
     // ── Validation ──────────────────────────────────────────────────────────
 
     it('returns failure for an invalid payload (missing phone)', async () => {
-        const { phone: _, ...bad } = VALID_WAVE_PAYLOAD;
+        const { phone: _phone, ...bad } = VALID_WAVE_PAYLOAD;
         const result = await initiatePayment(bad);
         expect(result.success).toBe(false);
         expect((result as { error: string }).error).toMatch(/invalides/i);
