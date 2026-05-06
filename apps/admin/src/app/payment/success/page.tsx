@@ -47,6 +47,15 @@ export default async function PaymentSuccessPage({ searchParams }: Props) {
     const isPending = status === 'PENDING';
     const isFailed  = status === 'FAILED';
 
+    const AMOUNT_TO_PLAN: Record<number, string> = {
+        10000: 'Pack Standard',
+        12000: 'Pack Premium',
+    };
+    const retryPlan = payment ? AMOUNT_TO_PLAN[Number(payment.amount)] : undefined;
+    const retryHref = retryPlan
+        ? `/checkout?plan=${encodeURIComponent(retryPlan)}`
+        : '/#offres';
+
     return (
         <div className="min-h-screen bg-surface-page flex items-center justify-center p-4">
 
@@ -136,7 +145,7 @@ export default async function PaymentSuccessPage({ searchParams }: Props) {
                 <div className="space-y-3">
                     {(isFailed || !payment) && (
                         <Link
-                            href="/checkout"
+                            href={retryHref}
                             className="flex h-11 items-center justify-center rounded-xl bg-brand px-6 text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors w-full"
                         >
                             Réessayer

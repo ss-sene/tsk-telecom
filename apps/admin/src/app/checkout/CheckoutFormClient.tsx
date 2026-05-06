@@ -11,7 +11,8 @@ interface Village {
 }
 
 interface Props {
-    villages: Village[];
+    villages:     Village[];
+    initialPlan?: string;
 }
 
 const PLANS = [
@@ -63,7 +64,7 @@ function InputField({
     );
 }
 
-export function CheckoutFormClient({ villages }: Props) {
+export function CheckoutFormClient({ villages, initialPlan }: Props) {
     const { state, startPayment, reset } = usePayment();
 
     const [firstName,      setFirstName]     = useState('');
@@ -72,7 +73,7 @@ export function CheckoutFormClient({ villages }: Props) {
     const [phone,          setPhone]         = useState('');
     const [villageId,      setVillageId]     = useState('');
     const [newVillageName, setNewVillageName] = useState('');
-    const [plan,           setPlan]          = useState(PLANS[0].id);
+    const [plan,           setPlan]          = useState(initialPlan ?? PLANS[0].id);
     const [provider,       setProvider]      = useState<PaymentProvider>('WAVE');
     const [errors,         setErrors]        = useState<Record<string, string>>({});
 
@@ -304,41 +305,60 @@ export function CheckoutFormClient({ villages }: Props) {
                 <div className="space-y-4 order-1 lg:order-2">
                     <h2 className="text-sm font-semibold text-text-muted">Votre offre</h2>
 
-                    {PLANS.map(p => (
-                        <button
-                            key={p.id}
-                            type="button"
-                            onClick={() => setPlan(p.id)}
-                            className={`w-full text-left rounded-2xl border-2 p-5 transition-all ${
-                                plan === p.id
-                                    ? 'border-brand bg-brand/5'
-                                    : 'border-border-default bg-surface-card hover:border-border-strong'
-                            }`}
-                        >
+                    {initialPlan ? (
+                        /* Plan pré-sélectionné — carte fixe non modifiable */
+                        <div className="w-full rounded-2xl border-2 border-brand bg-brand/5 p-5">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className={`font-extrabold text-sm ${plan === p.id ? 'text-brand' : 'text-text-base'}`}>
-                                        {p.label}
-                                    </p>
-                                    <p className="text-xs text-text-faint mt-0.5">{p.speed}</p>
+                                    <p className="font-extrabold text-sm text-brand">{selectedPlan.label}</p>
+                                    <p className="text-xs text-text-faint mt-0.5">{selectedPlan.speed}</p>
                                 </div>
                                 <div className="text-right">
                                     <p className="font-extrabold text-base text-text-base">
-                                        {p.price.toLocaleString('fr-FR')} <span className="text-xs font-bold">FCFA</span>
+                                        {selectedPlan.price.toLocaleString('fr-FR')} <span className="text-xs font-bold">FCFA</span>
                                     </p>
                                     <p className="text-xs text-text-faint">/ mois</p>
                                 </div>
                             </div>
-                            {plan === p.id && (
-                                <div className="mt-2.5 flex items-center gap-1.5 text-xs font-bold text-brand">
-                                    <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                    Sélectionné
+                        </div>
+                    ) : (
+                        /* Aucun plan pré-sélectionné — afficher les deux comme choix */
+                        PLANS.map(p => (
+                            <button
+                                key={p.id}
+                                type="button"
+                                onClick={() => setPlan(p.id)}
+                                className={`w-full text-left rounded-2xl border-2 p-5 transition-all ${
+                                    plan === p.id
+                                        ? 'border-brand bg-brand/5'
+                                        : 'border-border-default bg-surface-card hover:border-border-strong'
+                                }`}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className={`font-extrabold text-sm ${plan === p.id ? 'text-brand' : 'text-text-base'}`}>
+                                            {p.label}
+                                        </p>
+                                        <p className="text-xs text-text-faint mt-0.5">{p.speed}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-extrabold text-base text-text-base">
+                                            {p.price.toLocaleString('fr-FR')} <span className="text-xs font-bold">FCFA</span>
+                                        </p>
+                                        <p className="text-xs text-text-faint">/ mois</p>
+                                    </div>
                                 </div>
-                            )}
-                        </button>
-                    ))}
+                                {plan === p.id && (
+                                    <div className="mt-2.5 flex items-center gap-1.5 text-xs font-bold text-brand">
+                                        <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                        Sélectionné
+                                    </div>
+                                )}
+                            </button>
+                        ))
+                    )}
 
                     <div className="rounded-2xl bg-surface-section p-5 ring-1 ring-border-default">
                         <p className="text-xs font-bold uppercase tracking-wider text-text-muted mb-3">Récapitulatif</p>

@@ -1,8 +1,9 @@
 // Shared footer for /boutique, /starlink, and future public pages.
-import Link  from 'next/link';
-import Image from 'next/image';
-import { COMPANY }         from '@/lib/company';
-import { WhatsAppButton }  from '@/components/ui/WhatsAppButton';
+import Link              from 'next/link';
+import Image             from 'next/image';
+import { COMPANY }       from '@/lib/company';
+import { WhatsAppButton } from '@/components/ui/WhatsAppButton';
+import { ScrollLink }    from '@/components/ui/ScrollLink';
 
 const NAV_LINKS = [
     { href: '/#offres',                       label: 'Offres'                      },
@@ -12,7 +13,6 @@ const NAV_LINKS = [
     { href: '/starlink',                      label: 'Starlink'                    },
     { href: '/zones-couvertes',               label: 'Zones couvertes'             },
     { href: '/contact',                       label: 'Contact'                     },
-    { href: '/checkout',                      label: "S'abonner"                   },
     { href: '/mentions-legales',              label: 'Mentions légales'            },
     { href: '/politique-de-confidentialite',  label: 'Politique de confidentialité'},
     { href: '/cgu',                           label: 'CGU'                         },
@@ -47,12 +47,15 @@ export function PublicFooter() {
                         <ul className="space-y-2.5">
                             {NAV_LINKS.map(({ href, label }) => (
                                 <li key={href}>
-                                    <Link
-                                        href={href}
-                                        className="text-sm text-text-secondary hover:text-text-base transition-colors duration-150"
-                                    >
-                                        {label}
-                                    </Link>
+                                    {href.includes('#') ? (
+                                        <ScrollLink href={href} className="text-sm text-text-secondary hover:text-text-base transition-colors duration-150">
+                                            {label}
+                                        </ScrollLink>
+                                    ) : (
+                                        <Link href={href} className="text-sm text-text-secondary hover:text-text-base transition-colors duration-150">
+                                            {label}
+                                        </Link>
+                                    )}
                                 </li>
                             ))}
                         </ul>

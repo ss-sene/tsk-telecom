@@ -9,7 +9,7 @@ import { PublicFooter }  from '@/app/PublicFooter';
 
 export const metadata: Metadata = {
     title:       'Zones Couvertes — Internet Haut Débit au Sénégal',
-    description: "TDK Telecom couvre des villages et localités au Sénégal. Vérifiez si votre zone est desservie et souscrivez à un forfait Internet dès 10 000 FCFA/mois, activation sous 24h.",
+    description: "TDK Telecom couvre des villages et localités au Sénégal. Vérifiez si votre zone est desservie et payez un forfait Internet dès 10 000 FCFA/mois, activation sous 24h.",
     alternates:  { canonical: '/zones-couvertes' },
     openGraph: {
         title:       'Zones Couvertes par TDK Telecom — Internet au Sénégal',
@@ -80,14 +80,14 @@ export default async function ZonesCouvertesPage() {
                         <p className="text-base text-text-muted max-w-[52ch] leading-relaxed">
                             TDK Telecom déploie l&apos;Internet haut débit dans{' '}
                             <strong className="text-text-secondary">{villages.length} localité{villages.length > 1 ? 's' : ''}</strong>{' '}
-                            au Sénégal. Vérifiez si votre zone est desservie et souscrivez directement en ligne.
+                            au Sénégal. Vérifiez si votre zone est desservie et payez directement en ligne.
                         </p>
                         <div className="mt-6 flex flex-wrap gap-3">
                             <Link
-                                href="/checkout"
+                                href="/#offres"
                                 className="inline-flex h-11 items-center gap-2 rounded-xl bg-brand px-6 text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors"
                             >
-                                Payer maintenant
+                                Voir nos offres
                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                 </svg>

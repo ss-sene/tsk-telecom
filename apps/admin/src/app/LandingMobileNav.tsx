@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import { useState, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import { usePathname } from 'next/navigation';
+import { usePathname }  from 'next/navigation';
+import { ScrollLink }   from '@/components/ui/ScrollLink';
 
 const useIsMounted = () =>
     useSyncExternalStore(() => () => {}, () => true, () => false);
@@ -57,39 +58,51 @@ export function LandingMobileNav({ prefix = '' }: { prefix?: string }) {
                     const isActive = !item.href.includes('#') && (
                         item.href === '/' ? pathname === '/' : pathname === item.href
                     );
-                    return (
+                    const itemClass = `flex items-center justify-between border-b border-border-faint px-6 py-5 text-base font-semibold transition-colors ${
+                        isActive
+                            ? 'text-brand bg-brand-light'
+                            : 'text-text-secondary hover:bg-surface-raised active:bg-surface-raised'
+                    }`;
+                    const icon = (
+                        <svg className={`h-4 w-4 ${isActive ? 'text-brand' : 'text-text-faint'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                    );
+                    return item.href.includes('#') ? (
+                        <ScrollLink
+                            key={item.href}
+                            href={item.href}
+                            onClick={close}
+                            className={itemClass}
+                        >
+                            {item.label}{icon}
+                        </ScrollLink>
+                    ) : (
                         <a
                             key={item.href}
                             href={item.href}
                             onClick={close}
                             aria-current={isActive ? 'page' : undefined}
-                            className={`flex items-center justify-between border-b border-border-faint px-6 py-5 text-base font-semibold transition-colors ${
-                                isActive
-                                    ? 'text-brand bg-brand-light'
-                                    : 'text-text-secondary hover:bg-surface-raised active:bg-surface-raised'
-                            }`}
+                            className={itemClass}
                         >
-                            {item.label}
-                            <svg className={`h-4 w-4 ${isActive ? 'text-brand' : 'text-text-faint'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
+                            {item.label}{icon}
                         </a>
                     );
                 })}
             </nav>
 
-            {/* CTA Payer */}
+            {/* CTA principal */}
             <div className="border-t border-border-faint p-5">
-                <Link
-                    href="/checkout"
+                <ScrollLink
+                    href={`${prefix}#offres`}
                     onClick={close}
                     className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors shadow-sm"
                 >
-                    Payer maintenant
+                    Voir nos offres
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                     </svg>
-                </Link>
+                </ScrollLink>
             </div>
         </div>
     );

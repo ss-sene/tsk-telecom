@@ -4,6 +4,7 @@ import Link  from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { LandingMobileNav } from './LandingMobileNav';
+import { ScrollLink }       from '@/components/ui/ScrollLink';
 
 export function PublicHeader() {
     const pathname = usePathname();
@@ -42,6 +43,14 @@ export function PublicHeader() {
                             >
                                 {label}
                             </span>
+                        ) : href.includes('#') ? (
+                            <ScrollLink
+                                key={href}
+                                href={href}
+                                className="relative py-1 text-sm font-medium text-text-muted hover:text-text-base transition-colors duration-150 after:content-[''] after:absolute after:bottom-0 after:inset-x-0 after:h-px after:rounded-full after:bg-brand after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-left"
+                            >
+                                {label}
+                            </ScrollLink>
                         ) : (
                             <Link
                                 key={href}
@@ -55,15 +64,6 @@ export function PublicHeader() {
                 </nav>
 
                 <div className="flex items-center gap-2">
-                    <Link
-                        href="/checkout"
-                        className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-xl bg-brand px-4 text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors"
-                    >
-                        Souscrire
-                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                    </Link>
                     <LandingMobileNav prefix={prefix} />
                 </div>
             </div>

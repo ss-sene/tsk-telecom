@@ -1,5 +1,6 @@
 // app/checkout/page.tsx
 import type { Metadata }      from 'next';
+import { redirect }           from 'next/navigation';
 import { prisma }             from '@/core/db/prisma';
 import { COMPANY }            from '@/lib/company';
 import Image                  from 'next/image';
@@ -12,7 +13,20 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function CheckoutGateway() {
+const VALID_PLANS = ['Pack Standard', 'Pack Premium'] as const;
+type PlanId = typeof VALID_PLANS[number];
+
+export default async function CheckoutGateway({
+    searchParams,
+}: {
+    searchParams: Promise<{ plan?: string }>;
+}) {
+    const { plan: rawPlan } = await searchParams;
+    const initialPlan: PlanId | undefined = VALID_PLANS.find(p => p === rawPlan);
+
+    // Aucun plan sélectionné → renvoyer vers la sélection d'offre
+    if (!initialPlan) redirect('/#offres');
+
     const rawVillages = await prisma.village.findMany({
         orderBy: { titre: 'asc' },
         select: { id: true, titre: true }
@@ -77,7 +91,7 @@ export default async function CheckoutGateway() {
                         </svg>
                         Retour à l&apos;accueil
                     </Link>
-                    <CheckoutFormClient villages={villages} />
+                    <CheckoutFormClient villages={villages} initialPlan={initialPlan} />
                 </div>
             </main>
 

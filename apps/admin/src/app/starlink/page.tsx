@@ -3,6 +3,7 @@ export const revalidate = 86400; // ISR — static data, rebuild daily
 
 import type { Metadata } from 'next';
 import Link              from 'next/link';
+import { ScrollLink }    from '@/components/ui/ScrollLink';
 import { PublicHeader }  from '@/app/PublicHeader';
 import { PublicFooter }  from '@/app/PublicFooter';
 import { COMPANY }       from '@/lib/company';
@@ -299,12 +300,12 @@ export default function StarlinkPage() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                                 </svg>
                             </a>
-                            <a
+                            <ScrollLink
                                 href="#comment-ca-marche"
                                 className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/8 px-6 py-3 text-sm font-semibold text-white hover:bg-white/15 transition-colors backdrop-blur-sm"
                             >
                                 Comment ça marche
-                            </a>
+                            </ScrollLink>
                         </div>
 
                         <div className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-white/50">
@@ -617,7 +618,7 @@ export default function StarlinkPage() {
                                 </svg>
                             </a>
                             <Link
-                                href="/"
+                                href="/#offres"
                                 className="inline-flex items-center gap-2 rounded-xl border border-border-default bg-transparent px-6 py-3 text-sm font-semibold text-text-secondary hover:bg-surface-raised transition-colors"
                             >
                                 Voir nos forfaits Internet

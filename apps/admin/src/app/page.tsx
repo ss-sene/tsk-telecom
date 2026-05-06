@@ -6,6 +6,7 @@ import { COMPANY }         from '@/lib/company';
 import { PublicHeader }    from './PublicHeader';
 import { PublicFooter }    from './PublicFooter';
 import { HomeHero }        from './HomeHero';
+import { ScrollLink }      from '@/components/ui/ScrollLink';
 
 
 export const metadata: Metadata = {
@@ -37,7 +38,7 @@ const AVANTAGES = [
         path:  'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
     },
     {
-        title: 'Souscription depuis votre téléphone',
+        title: 'Paiement depuis votre téléphone',
         desc:  'Remplissez le formulaire en 3 minutes et payez depuis Wave ou Orange Money. Pas de déplacement, pas de paperasse.',
         path:  'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',
     },
@@ -85,10 +86,10 @@ const FAQ: FaqItem[] = [
     },
     {
         q: 'Comment fonctionne le paiement ?',
-        a: "Après avoir rempli le formulaire de souscription, vous êtes redirigé vers votre application Wave ou Orange Money. Le montant est affiché à l'avance, sans frais cachés. La validation se fait en quelques secondes depuis votre téléphone.",
+        a: "Après avoir rempli le formulaire de paiement, vous êtes redirigé vers votre application Wave ou Orange Money. Le montant est affiché à l'avance, sans frais cachés. La validation se fait en quelques secondes depuis votre téléphone.",
     },
     {
-        q: 'Que se passe-t-il après la souscription ?',
+        q: 'Que se passe-t-il après le paiement ?',
         a: "Votre demande est enregistrée immédiatement. L'équipe TDK Telecom vous contacte dans les 24 heures pour planifier l'installation et activer votre connexion.",
     },
     {
@@ -127,9 +128,9 @@ const FAQ: FaqItem[] = [
         aNode: (
             <>
                 Le Pack Standard (10&nbsp;000 FCFA/mois) offre jusqu&apos;à 15 Mbps — idéal pour la navigation quotidienne. Le Pack Premium (12&nbsp;000 FCFA/mois) monte jusqu&apos;à 30 Mbps pour le streaming et le télétravail.{' '}
-                <Link href="/checkout" className="text-brand font-semibold hover:underline">
-                    Comparez et souscrivez directement en ligne
-                </Link>.
+                <ScrollLink href="#offres" className="text-brand font-semibold hover:underline">
+                    Comparez nos offres directement
+                </ScrollLink>.
             </>
         ),
     },
@@ -300,7 +301,7 @@ export default function HomePage() {
                                     }`}
                                 >
                                     {plan.isPopular && (
-                                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand/10 border border-brand/30 px-4 py-1 text-xs font-medium text-brand">
+                                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand border border-brand/30 px-4 py-1 text-xs font-medium text-[#121A26]">
                                             Le plus choisi
                                         </div>
                                     )}
@@ -505,7 +506,7 @@ export default function HomePage() {
                         <div className="rounded-2xl bg-surface-card px-8 py-16 sm:px-14 sm:py-20 text-center border border-border-subtle shadow-[var(--shadow-card-md)]">
                             <p className="text-xs font-bold uppercase tracking-widest text-brand mb-3">Prêt à vous connecter ?</p>
                             <h2 className="text-3xl font-bold sm:text-4xl tracking-[-0.02em] mb-4 max-w-[28ch] mx-auto text-text-base">
-                                {"Souscrivez dès aujourd'hui depuis votre téléphone."}
+                                {"Payez dès aujourd'hui depuis votre téléphone."}
                             </h2>
                             <p className="text-base text-text-secondary mb-10 max-w-[46ch] mx-auto leading-relaxed">
                                 Choisissez votre forfait, remplissez le formulaire en 3 minutes et payez
@@ -513,21 +514,21 @@ export default function HomePage() {
                             </p>
 
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                                <Link
-                                    href="/checkout"
+                                <ScrollLink
+                                    href="#offres"
                                     className="inline-flex h-13 w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-brand px-8 text-sm font-bold text-[#121A26] hover:bg-brand-hover transition-colors shadow-sm"
                                 >
-                                    Commencer la souscription
+                                    Choisir mon offre
                                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                     </svg>
-                                </Link>
-                                <Link
+                                </ScrollLink>
+                                <ScrollLink
                                     href="#offres"
                                     className="inline-flex h-13 w-full sm:w-auto items-center justify-center rounded-xl border border-brand/60 bg-transparent px-8 text-sm font-semibold text-brand hover:bg-brand/10 transition-colors"
                                 >
                                     Voir les forfaits
-                                </Link>
+                                </ScrollLink>
                             </div>
 
                             <div className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-text-muted">
